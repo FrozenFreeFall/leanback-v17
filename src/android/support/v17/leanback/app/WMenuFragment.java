@@ -28,7 +28,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.MarginLayoutParams;
-import android.widget.GridView;
 
 @SuppressLint("NewApi")
 public class WMenuFragment extends BaseFragment {
@@ -271,7 +270,7 @@ public class WMenuFragment extends BaseFragment {
         mRowsAdapter = adapter;
         if (mRowsFragment != null) {
             mRowsFragment.setAdapter(adapter);
-            onRowSelected(0);
+            setSelection(0, false);
         }
     }
     
@@ -722,7 +721,7 @@ public class WMenuFragment extends BaseFragment {
         public void onHeaderSelected(RowHeaderPresenter.ViewHolder viewHolder, Row row) {
             int position = mMenuFragment.getVerticalGridView().getSelectedPosition();
             if (DEBUG) Log.v(TAG, "header selected position " + position);
-            onRowSelected(NO_POSITION);
+            setRowsAdapter(null);
             if (mExternalOnMenuItemSelectedListener != null) {
             	mExternalOnMenuItemSelectedListener.onMenuItemSelected(row, position);
             }
@@ -734,11 +733,11 @@ public class WMenuFragment extends BaseFragment {
             mSetSelectionRunnable.post(
                     position, SetSelectionRunnable.TYPE_INTERNAL_SYNC, true);
 
-            if (getRowsAdapter() == null || getRowsAdapter().size() == 0 || position == 0) {
-                showTitle(true);
-            } else {
-                showTitle(false);
-            }
+        }
+        if (getRowsAdapter() == null || getRowsAdapter().size() == 0 || position == 0) {
+            showTitle(true);
+        } else {
+            showTitle(false);
         }
     }
 
