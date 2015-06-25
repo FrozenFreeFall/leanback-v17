@@ -12,6 +12,7 @@ import android.support.v17.leanback.R;
 import android.support.v17.leanback.transition.TransitionListener;
 import android.support.v17.leanback.widget.BrowseFrameLayout;
 import android.support.v17.leanback.widget.HorizontalGridView;
+import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.ObjectAdapter;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.OnItemViewSelectedListener;
@@ -743,6 +744,7 @@ public class WMenuFragment extends BaseFragment {
 
     private void setSelection(int position, boolean smooth) {
         if (position != NO_POSITION) {
+        	Log.d(TAG, "setSelection: "+position);
             mRowsFragment.setSelectedPosition(position, smooth);
         }
         mSelectedPosition = position;
@@ -761,6 +763,23 @@ public class WMenuFragment extends BaseFragment {
     public void setSelectedPosition(int position, boolean smooth) {
         mSetSelectionRunnable.post(
                 position, SetSelectionRunnable.TYPE_USER_REQUEST, smooth);
+    }
+    
+    public int getSelectedPosition() {
+    	return mSelectedPosition;
+    }
+    
+    public Object getSelectedItem() {
+    	int selectedRow = mRowsFragment.getVerticalGridView().getSelectedPosition();
+    	
+    	try {
+	    	ListRow row = (ListRow) mRowsAdapter.get(selectedRow);
+	    	return row.getAdapter().get(mSelectedPosition);
+    	} catch (Exception e) {
+    		e.printStackTrace();
+    	}
+
+    	return null;
     }
 
     @Override
