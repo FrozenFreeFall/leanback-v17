@@ -927,5 +927,9 @@ public class WMenuFragment extends BaseFragment {
         setSearchOrbViewOnScreen(true);
         mRowsFragment.setEntranceTransitionState(true);
     }
+    
+    public View getRowsGridView() {
+    	return mRowsFragment.getVerticalGridView();
+    }
 
 }
