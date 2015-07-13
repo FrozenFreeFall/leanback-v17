@@ -10,6 +10,7 @@ import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.transition.TransitionListener;
+import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.BrowseFrameLayout;
 import android.support.v17.leanback.widget.HorizontalGridView;
 import android.support.v17.leanback.widget.ListRow;
@@ -195,7 +196,8 @@ public class WMenuFragment extends BaseFragment {
     private OnItemViewSelectedListener mExternalOnItemViewSelectedListener;
     private OnMenuItemSelectedListener mExternalOnMenuItemSelectedListener;
     private OnItemViewClickedListener mOnItemViewClickedListener;
-    private int mSelectedPosition = NO_POSITION;
+    private int mSelectedRowPosition = NO_POSITION;
+    private int mSelectedItemPosition = NO_POSITION;
 
     private PresenterSelector mHeaderPresenterSelector;
     private final SetSelectionRunnable mSetSelectionRunnable = new SetSelectionRunnable();
@@ -707,8 +709,14 @@ public class WMenuFragment extends BaseFragment {
         public void onItemSelected(Presenter.ViewHolder itemViewHolder, Object item,
                 RowPresenter.ViewHolder rowViewHolder, Row row) {
             int position = mRowsFragment.getVerticalGridView().getSelectedPosition();
-            if (DEBUG) Log.v(TAG, "row selected position " + position);
             onRowSelected(position);
+			if (row instanceof ListRow) {
+				ListRow lr = (ListRow) row;
+				if (lr.getAdapter() instanceof ArrayObjectAdapter) {
+					ArrayObjectAdapter adapter = (ArrayObjectAdapter) lr.getAdapter();
+					mSelectedItemPosition = adapter.indexOf(item);
+				}
+			}
             if (mExternalOnItemViewSelectedListener != null) {
                 mExternalOnItemViewSelectedListener.onItemSelected(itemViewHolder, item,
                         rowViewHolder, row);
@@ -730,7 +738,7 @@ public class WMenuFragment extends BaseFragment {
     };
 
     private void onRowSelected(int position) {
-        if (position != mSelectedPosition) {
+        if (position != mSelectedRowPosition) {
             mSetSelectionRunnable.post(
                     position, SetSelectionRunnable.TYPE_INTERNAL_SYNC, true);
 
@@ -747,7 +755,7 @@ public class WMenuFragment extends BaseFragment {
         	Log.d(TAG, "setSelection: "+position);
             mRowsFragment.setSelectedPosition(position, smooth);
         }
-        mSelectedPosition = position;
+        mSelectedRowPosition = position;
     }
 
     /**
@@ -765,16 +773,35 @@ public class WMenuFragment extends BaseFragment {
                 position, SetSelectionRunnable.TYPE_USER_REQUEST, smooth);
     }
     
-    public int getSelectedPosition() {
-    	return mSelectedPosition;
+    public int getSelectedRowPosition() {
+    	return mRowsFragment.getVerticalGridView().getSelectedPosition();
+    }
+//    
+//    public int getSelectedItemPosition() {
+//    	return mSelectedRowPosition;
+//    }
+    
+    public int getSelectedItemPosition() {
+    	return mSelectedItemPosition;
     }
     
-    public Object getSelectedItem() {
-    	int selectedRow = mRowsFragment.getVerticalGridView().getSelectedPosition();
-    	
+    public int getSelectedRowItemCount() {
+    	int selectedRow = getSelectedRowPosition();
     	try {
 	    	ListRow row = (ListRow) mRowsAdapter.get(selectedRow);
-	    	return row.getAdapter().get(mSelectedPosition);
+	    	return row.getAdapter().size();
+    	} catch (Exception e) {
+    		e.printStackTrace();
+    	}
+
+    	return 0;
+    }
+    
+    public Object getFirstItem() {
+    	int selectedRow = getSelectedRowPosition();
+    	try {
+	    	ListRow row = (ListRow) mRowsAdapter.get(selectedRow);
+	    	return row.getAdapter().get(0);
     	} catch (Exception e) {
     		e.printStackTrace();
     	}
