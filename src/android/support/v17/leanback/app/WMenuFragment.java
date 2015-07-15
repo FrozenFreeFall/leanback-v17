@@ -752,7 +752,6 @@ public class WMenuFragment extends BaseFragment {
 
     private void setSelection(int position, boolean smooth) {
         if (position != NO_POSITION) {
-        	Log.d(TAG, "setSelection: "+position);
             mRowsFragment.setSelectedPosition(position, smooth);
         }
         mSelectedRowPosition = position;
