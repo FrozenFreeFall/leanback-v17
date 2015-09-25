@@ -621,6 +621,26 @@ abstract class BaseGridView extends RecyclerView {
         return isChildrenDrawingOrderEnabled();
     }
 
+    @Override
+    public View focusSearch(int direction) {
+        if (isFocused()) {
+            // focusSearch(int) is called when GridView itself is focused.
+            // Calling focusSearch(view, int) to get next sibling of current selected child.
+            View view = mLayoutManager.findViewByPosition(mLayoutManager.getSelection());
+            if (view != null) {
+                return focusSearch(view, direction);
+            }
+        }
+        // otherwise, go to mParent to perform focusSearch
+        return super.focusSearch(direction);
+    }
+
+    @Override
+    protected void onFocusChanged(boolean gainFocus, int direction, Rect previouslyFocusedRect) {
+        super.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
+        mLayoutManager.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
+    }
+
     /**
      * Disables or enables focus search.
      */
@@ -823,5 +843,25 @@ abstract class BaseGridView extends RecyclerView {
     @Override
     public void setRecyclerListener(RecyclerView.RecyclerListener listener) {
         mChainedRecyclerListener = listener;
+    }
+
+    /**
+     * Sets pixels of extra space for layout child in invisible area.
+     *
+     * @param extraLayoutSpace  Pixels of extra space for layout invisible child.
+     *                          Must be bigger or equals to 0.
+     * @hide
+     */
+    public void setExtraLayoutSpace(int extraLayoutSpace) {
+        mLayoutManager.setExtraLayoutSpace(extraLayoutSpace);
+    }
+
+    /**
+     * Returns pixels of extra space for layout child in invisible area.
+     *
+     * @hide
+     */
+    public int getExtraLayoutSpace() {
+        return mLayoutManager.getExtraLayoutSpace();
     }
 }

@@ -13,7 +13,6 @@
  */
 package android.support.v17.leanback.widget;
 
-import android.annotation.SuppressLint;
 import android.graphics.drawable.Drawable;
 import android.support.v17.leanback.R;
 import android.text.TextUtils;
@@ -22,7 +21,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-@SuppressLint("NewApi")
 class ActionPresenterSelector extends PresenterSelector {
 
     private final Presenter mOneLineActionPresenter = new OneLineActionPresenter();
