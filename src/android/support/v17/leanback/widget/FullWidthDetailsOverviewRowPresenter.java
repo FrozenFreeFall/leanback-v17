@@ -13,7 +13,6 @@
  */
 package android.support.v17.leanback.widget;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
@@ -36,6 +35,7 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.MarginLayoutParams;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+
 import java.util.Collection;
 
 /**
@@ -69,7 +69,6 @@ import java.util.Collection;
  * selected row position.
  * </p>
  */
-@SuppressLint("NewApi")
 public class FullWidthDetailsOverviewRowPresenter extends RowPresenter {
 
     private static final String TAG = "FullWidthDetailsOverviewRowPresenter";

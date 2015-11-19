@@ -29,7 +29,6 @@ import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.TitleHelper;
 import android.support.v17.leanback.widget.TitleView;
 import android.support.v17.leanback.widget.VerticalGridView;
-import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -71,7 +70,6 @@ import android.view.ViewGroup;
  * </li>
  * </p>
  */
-@SuppressLint("NewApi")
 public class DetailsFragment extends BaseFragment {
     private static final String TAG = "DetailsFragment";
     private static boolean DEBUG = false;
@@ -330,7 +328,7 @@ public class DetailsFragment extends BaseFragment {
                 RowPresenter rowPresenter = (RowPresenter) bridgeViewHolder.getPresenter();
                 onSetRowStatus(rowPresenter,
                         rowPresenter.getRowViewHolder(bridgeViewHolder.getViewHolder()),
-                        bridgeViewHolder.getPosition(),
+                        bridgeViewHolder.getAdapterPosition(),
                         selectedPosition, selectedSubPosition);
             }
         }
@@ -396,11 +394,7 @@ public class DetailsFragment extends BaseFragment {
         super.onStart();
         setupChildFragmentLayout();
         setupFocusSearchListener();
-        mRowsFragment.getView().requestFocus();
         if (isEntranceTransitionEnabled()) {
-            // make sure recycler view animation is disabled
-            mRowsFragment.onTransitionPrepare();
-            mRowsFragment.onTransitionStart();
             mRowsFragment.setEntranceTransitionState(false);
         }
     }
@@ -422,4 +416,13 @@ public class DetailsFragment extends BaseFragment {
         mRowsFragment.onTransitionEnd();
     }
 
+    @Override
+    protected void onEntranceTransitionPrepare() {
+        mRowsFragment.onTransitionPrepare();
+    }
+
+    @Override
+    protected void onEntranceTransitionStart() {
+        mRowsFragment.onTransitionStart();
+    }
 }

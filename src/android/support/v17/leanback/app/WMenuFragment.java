@@ -8,6 +8,7 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.transition.TransitionListener;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
@@ -192,6 +193,7 @@ public class WMenuFragment extends BaseFragment {
     private boolean mCanShowHeaders = true;
     private int mContainerListMarginStart;
     private int mContainerListAlignTop;
+    private int mContainerListFirstItemAlignTop;
     private boolean mRowScaleEnabled = true;
     private OnItemViewSelectedListener mExternalOnItemViewSelectedListener;
     private OnMenuItemSelectedListener mExternalOnMenuItemSelectedListener;
@@ -270,11 +272,16 @@ public class WMenuFragment extends BaseFragment {
      *        derive from {@link Row}.
      */
     public void setRowsAdapter(ObjectAdapter adapter) {
-        mRowsAdapter = adapter;
-        if (mRowsFragment != null) {
-            mRowsFragment.setAdapter(adapter);
-            setSelection(0, false);
-        }
+    	setRowsAdapter(adapter, mContainerListAlignTop);
+    }
+    
+    public void setRowsAdapter(ObjectAdapter adapter, int firstRowMarginTop) {
+    	mContainerListFirstItemAlignTop = firstRowMarginTop;
+    	mRowsAdapter = adapter;
+    	if (mRowsFragment != null) {
+    		mRowsFragment.setAdapter(adapter);
+    		setSelection(0, false);
+    	}
     }
     
     public void setMenuAdapter(ObjectAdapter adapter) {
@@ -443,7 +450,7 @@ public class WMenuFragment extends BaseFragment {
 
             if (getTitleView() != null && focused != getTitleView() &&
                     direction == View.FOCUS_UP) {
-                return getTitleView();
+                return getTitleView().focusSearch(focused, direction);
             }
             if (getTitleView() != null && getTitleView().hasFocus() &&
                     direction == View.FOCUS_DOWN) {
@@ -708,7 +715,15 @@ public class WMenuFragment extends BaseFragment {
         @Override
         public void onItemSelected(Presenter.ViewHolder itemViewHolder, Object item,
                 RowPresenter.ViewHolder rowViewHolder, Row row) {
+
             int position = mRowsFragment.getVerticalGridView().getSelectedPosition();
+			if (position == 0) {
+				mRowsFragment.setWindowAlignmentFromTop(mContainerListFirstItemAlignTop);
+				mRowsFragment.setItemAlignment();
+			} else {
+				mRowsFragment.setWindowAlignmentFromTop(mContainerListAlignTop);
+				mRowsFragment.setItemAlignment();
+			}
             onRowSelected(position);
 			if (row instanceof ListRow) {
 				ListRow lr = (ListRow) row;
@@ -749,7 +764,7 @@ public class WMenuFragment extends BaseFragment {
             showTitle(false);
         }
     }
-
+    
     private void setSelection(int position, boolean smooth) {
         if (position != NO_POSITION) {
             mRowsFragment.setSelectedPosition(position, smooth);
@@ -813,9 +828,6 @@ public class WMenuFragment extends BaseFragment {
         super.onStart();
         mMenuFragment.setWindowAlignmentFromTop(mContainerListAlignTop);
         mMenuFragment.setItemAlignment();
-        mRowsFragment.setWindowAlignmentFromTop(mContainerListAlignTop);
-        mRowsFragment.setItemAlignment();
-
         mRowsFragment.setScalePivots(0, mContainerListAlignTop);
 
         if (mCanShowHeaders && mShowingHeaders && mMenuFragment.getView() != null) {
@@ -956,6 +968,10 @@ public class WMenuFragment extends BaseFragment {
     
     public View getRowsGridView() {
     	return mRowsFragment.getVerticalGridView();
+    }
+    
+    public TitleView getTitleView() {
+    	return super.getTitleView();
     }
 
 }
