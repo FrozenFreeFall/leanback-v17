@@ -8,7 +8,6 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v17.leanback.R;
 import android.support.v17.leanback.transition.TransitionListener;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
