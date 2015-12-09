@@ -785,6 +785,12 @@ public class WMenuFragment extends BaseFragment {
         mSetSelectionRunnable.post(
                 position, SetSelectionRunnable.TYPE_USER_REQUEST, smooth);
     }
+
+    public void setMenuSelectedPosition(int position) {
+        if (position != NO_POSITION) {
+            mMenuFragment.setSelectedPosition(position);
+        }
+    }
     
     public int getSelectedRowPosition() {
     	return mRowsFragment.getVerticalGridView().getSelectedPosition();
