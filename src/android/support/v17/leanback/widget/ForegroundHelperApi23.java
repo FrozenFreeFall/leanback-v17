@@ -26,11 +26,10 @@ import android.view.ViewOutlineProvider;
 class ForegroundHelperApi23 {
 
     public static Drawable getForeground(View view) {
-//        return view.getForeground();
-    	return null;
+        return view.getForeground();
     }
 
     public static void setForeground(View view, Drawable drawable) {
-//        view.setForeground(drawable);
+        view.setForeground(drawable);
     }
 }
