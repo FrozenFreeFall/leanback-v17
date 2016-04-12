@@ -1,62 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2">
     <!-- From: file:/usr/local/google/buildbot/repo_clients/https___googleplex-android.googlesource.com_a_platform_manifest.git/mnc-supportlib-release/frameworks/support/v17/leanback/res/values/colors.xml -->
-    <eat-comment/>
-    <color name="lb_action_text_color">#EEEEEE</color>
-    <color name="lb_background_protection">#99000000</color>
-    <color name="lb_basic_card_bg_color">#FF263238</color>
-    <color name="lb_basic_card_content_text_color">#B3EEEEEE</color>
-    <color name="lb_basic_card_info_bg_color">#FF37474F</color>
-    <color name="lb_basic_card_title_text_color">#FFEEEEEE</color>
-    <color name="lb_browse_header_color">#FFFFFF</color>
-    <color name="lb_browse_title_color">#EEEEEE</color>
-    <color name="lb_control_button_color">#66EEEEEE</color>
-    <color name="lb_control_button_text">#EEEEEE</color>
-    <color name="lb_default_brand_color">#FF455A64</color>
-    <color name="lb_default_search_color">#FFFFAA3F</color>
-    <color name="lb_details_description_body_color">#B2EEEEEE</color>
-    <color name="lb_details_description_color">#EEEEEE</color>
-    <color name="lb_details_overview_bg_color">#1B1B1B</color>
-    <color name="lb_error_background_color_opaque">#262626</color>
-    <color name="lb_error_background_color_translucent">#E6000000</color>
-    <color name="lb_error_message">#80EEEEEE</color>
-    <color name="lb_grey">#888888</color>
-    <color name="lb_guidedactions_background">#FF111111</color>
-    <color name="lb_guidedactions_item_unselected_text_color">#FFF1F1F1</color>
-    <color name="lb_guidedactions_selector_color">#26FFFFFF</color>
-    <color name="lb_list_item_unselected_text_color">#FFF1F1F1</color>
-    <color name="lb_playback_background_progress_color">#19FFFFFF</color>
-    <color name="lb_playback_controls_background_dark">#c0000000</color>
-    <color name="lb_playback_controls_background_light">#80000000</color>
-    <color name="lb_playback_controls_time_text_color">#B2EEEEEE</color>
-    <color name="lb_playback_icon_highlight_no_theme">#ff40c4ff</color>
-    <color name="lb_playback_progress_color_no_theme">#ff40c4ff</color>
-    <color name="lb_playback_secondary_progress_color">#33FFFFFF</color>
-    <color name="lb_search_bar_hint">#FF888888</color>
-    <color name="lb_search_bar_hint_speech_mode">#66222222</color>
-    <color name="lb_search_bar_text">#80EEEEEE</color>
-    <color name="lb_search_bar_text_speech_mode">#FF444444</color>
-    <color name="lb_search_plate_hint_text_color">#FFCCCCCC</color>
-    <color name="lb_speech_orb_not_recording">#CCCCCC</color>
-    <color name="lb_speech_orb_not_recording_icon">#555555</color>
-    <color name="lb_speech_orb_not_recording_pulsed">#EEEEEE</color>
-    <color name="lb_speech_orb_recording">#ff4343</color>
-    <color name="lb_tv_white">#FFCCCCCC</color>
-    <color name="lb_view_dim_mask_color">#000000</color>
-    <declare-styleable name="LeanbackGuidedStepTheme"><attr format="reference" name="guidedStepTheme"/><attr format="boolean" name="guidedStepThemeFlag"/><attr format="reference|color" name="guidedStepBackground"/><attr format="reference" name="guidedStepImeAppearingAnimation"/><attr format="reference" name="guidedStepImeDisappearingAnimation"/><attr format="reference" name="guidanceContainerStyle"/><attr format="reference" name="guidanceTitleStyle"/><attr format="reference" name="guidanceDescriptionStyle"/><attr format="reference" name="guidanceBreadcrumbStyle"/><attr format="reference" name="guidanceIconStyle"/><attr format="reference" name="guidedActionsSelectorShowAnimation"/><attr format="reference" name="guidedActionsSelectorHideAnimation"/><attr format="reference" name="guidedActionsContainerStyle"/><attr format="reference" name="guidedActionsSelectorStyle"/><attr format="reference" name="guidedActionsListStyle"/><attr format="reference" name="guidedActionItemContainerStyle"/><attr format="reference" name="guidedActionItemCheckmarkStyle"/><attr format="reference" name="guidedActionItemIconStyle"/><attr format="reference" name="guidedActionItemContentStyle"/><attr format="reference" name="guidedActionItemTitleStyle"/><attr format="reference" name="guidedActionItemDescriptionStyle"/><attr format="reference" name="guidedActionItemChevronStyle"/><attr format="reference" name="guidedActionCheckedAnimation"/><attr format="reference" name="guidedActionUncheckedAnimation"/><attr format="reference" name="guidedActionPressedAnimation"/><attr format="reference" name="guidedActionUnpressedAnimation"/><attr format="reference" name="guidedActionEnabledChevronAlpha"/><attr format="reference" name="guidedActionDisabledChevronAlpha"/><attr format="reference" name="guidedActionContentWidth"/><attr format="reference" name="guidedActionContentWidthNoIcon"/><attr format="reference" name="guidedActionTitleMinLines"/><attr format="reference" name="guidedActionTitleMaxLines"/><attr format="reference" name="guidedActionDescriptionMinLines"/><attr format="reference" name="guidedActionVerticalPadding"/></declare-styleable>
-    <declare-styleable name="LeanbackTheme"><attr format="dimension" name="browsePaddingStart"/><attr format="dimension" name="browsePaddingEnd"/><attr format="dimension" name="browsePaddingTop"/><attr format="dimension" name="browsePaddingBottom"/><attr format="dimension" name="browseRowsMarginStart"/><attr format="dimension" name="browseRowsMarginTop"/><attr format="dimension" name="browseRowsFadingEdgeLength"/><attr format="reference" name="browseTitleTextStyle"/><attr format="reference" name="browseTitleIconStyle"/><attr format="reference" name="browseTitleViewStyle"/><attr format="reference" name="headersVerticalGridStyle"/><attr format="reference" name="headerStyle"/><attr format="reference" name="rowsVerticalGridStyle"/><attr format="reference" name="rowHorizontalGridStyle"/><attr format="reference" name="rowHeaderStyle"/><attr format="reference" name="rowHeaderDockStyle"/><attr format="reference" name="rowHoverCardTitleStyle"/><attr format="reference" name="rowHoverCardDescriptionStyle"/><attr format="reference" name="baseCardViewStyle"/><attr format="reference" name="imageCardViewStyle"/><attr format="reference" name="detailsDescriptionTitleStyle"/><attr format="reference" name="detailsDescriptionSubtitleStyle"/><attr format="reference" name="detailsDescriptionBodyStyle"/><attr format="reference" name="detailsActionButtonStyle"/><attr format="reference" name="playbackControlsButtonStyle"/><attr format="reference" name="playbackControlButtonLabelStyle"/><attr format="reference" name="playbackControlsTimeStyle"/><attr format="reference" name="itemsVerticalGridStyle"/><attr format="reference" name="errorMessageStyle"/><attr format="reference|color" name="defaultBrandColor"/><attr format="reference|color" name="defaultSearchColor"/><attr format="reference|color" name="defaultSearchBrightColor"/><attr format="reference" name="searchOrbViewStyle"/><attr format="reference" name="defaultSearchIcon"/><attr format="reference|color" name="playbackProgressPrimaryColor"/><attr format="reference|color" name="playbackControlsIconHighlightColor"/><attr format="reference" name="playbackControlsActionIcons"/><attr format="color" name="overlayDimMaskColor"/><attr format="fraction" name="overlayDimActiveLevel"/><attr format="fraction" name="overlayDimDimmedLevel"/></declare-styleable>
-    <declare-styleable name="lbBaseCardView"><attr format="reference|color" name="cardForeground"/><attr format="reference|color" name="cardBackground"/><attr format="enum" name="cardType"><enum name="mainOnly" value="0"/><enum name="infoOver" value="1"/><enum name="infoUnder" value="2"/><enum name="infoUnderWithExtra" value="3"/></attr><attr format="enum" name="infoVisibility"><enum name="always" value="0"/><enum name="activated" value="1"/><enum name="selected" value="2"/></attr><attr format="enum" name="extraVisibility"><enum name="always" value="0"/><enum name="activated" value="1"/><enum name="selected" value="2"/></attr><attr format="integer" name="selectedAnimationDelay"/><attr format="integer" name="selectedAnimationDuration"/><attr format="integer" name="activatedAnimationDuration"/></declare-styleable>
-    <declare-styleable name="lbBaseCardView_Layout"><attr format="enum" name="layout_viewType"><enum name="main" value="0"/><enum name="info" value="1"/><enum name="extra" value="2"/></attr></declare-styleable>
-    <declare-styleable name="lbBaseGridView"><attr format="boolean" name="focusOutFront"/><attr format="boolean" name="focusOutEnd"/><attr format="dimension" name="horizontalMargin"/><attr format="dimension" name="verticalMargin"/><attr name="android:gravity"/></declare-styleable>
-    <declare-styleable name="lbHorizontalGridView"><attr format="dimension" name="rowHeight"><enum name="wrap_content" value="-2"/></attr><attr format="integer" name="numberOfRows"/></declare-styleable>
-    <declare-styleable name="lbImageCardView"><attr format="reference|color" name="infoAreaBackground"/><attr format="reference" name="lbImageCardViewImageStyle"/><attr format="reference" name="lbImageCardViewTitleStyle"/><attr format="reference" name="lbImageCardViewContentStyle"/><attr format="reference" name="lbImageCardViewBadgeStyle"/><attr format="reference" name="lbImageCardViewInfoAreaStyle"/><attr name="lbImageCardViewType"><flag name="Title" value="1"/><flag name="Content" value="2"/><flag name="IconOnRight" value="4"/><flag name="IconOnLeft" value="8"/><flag name="ImageOnly" value="0"/></attr></declare-styleable>
-    <declare-styleable name="lbPlaybackControlsActionIcons"><attr format="reference" name="play"/><attr format="reference" name="pause"/><attr format="reference" name="fast_forward"/><attr format="reference" name="rewind"/><attr format="reference" name="skip_next"/><attr format="reference" name="skip_previous"/><attr format="reference" name="thumb_up_outline"/><attr format="reference" name="thumb_up"/><attr format="reference" name="thumb_down_outline"/><attr format="reference" name="thumb_down"/><attr format="reference" name="repeat"/><attr format="reference" name="repeat_one"/><attr format="reference" name="shuffle"/><attr format="reference" name="high_quality"/><attr format="reference" name="closed_captioning"/></declare-styleable>
-    <declare-styleable name="lbResizingTextView"><attr name="resizeTrigger"><flag name="maxLines" value="0x01"/></attr><attr format="dimension" name="resizedTextSize"/><attr format="boolean" name="maintainLineSpacing"/><attr format="dimension" name="resizedPaddingAdjustmentTop"/><attr format="dimension" name="resizedPaddingAdjustmentBottom"/></declare-styleable>
-    <declare-styleable name="lbSearchOrbView"><attr format="reference" name="searchOrbIcon"/><attr format="reference|color" name="searchOrbIconColor"/><attr format="reference|color" name="searchOrbColor"/><attr format="reference|color" name="searchOrbBrightColor"/></declare-styleable>
-    <declare-styleable name="lbSlide"><attr name="lb_slideEdge"><enum name="left" value="0x03"/><enum name="top" value="0x30"/><enum name="right" value="0x05"/><enum name="bottom" value="0x50"/><enum name="start" value="0x00800003"/><enum name="end" value="0x00800005"/></attr><attr name="android:duration"/><attr name="android:startDelay"/><attr name="android:interpolator"/></declare-styleable>
-    <declare-styleable name="lbVerticalGridView"><attr format="dimension" name="columnWidth"><enum name="wrap_content" value="-2"/></attr><attr format="integer" name="numberOfColumns"/></declare-styleable>
-    <!-- From: file:/usr/local/google/buildbot/repo_clients/https___googleplex-android.googlesource.com_a_platform_manifest.git/mnc-supportlib-release/frameworks/support/v17/leanback/res/values/dimens.xml -->
-    <eat-comment/>
+
+
     <dimen name="lb_action_1_line_height">36dp</dimen>
     <dimen name="lb_action_2_lines_height">56dp</dimen>
     <dimen name="lb_action_button_corner_radius">2dp</dimen>
@@ -82,8 +28,6 @@
     <dimen name="lb_browse_header_fading_length">12dp</dimen>
     <dimen name="lb_browse_header_height">24dp</dimen>
     <dimen name="lb_browse_header_padding_end">8dp</dimen>
-    <item format="integer" name="lb_browse_header_select_duration" type="dimen">150</item>
-    <item format="float" name="lb_browse_header_select_scale" type="dimen">1.2</item>
     <dimen name="lb_browse_header_text_size">20sp</dimen>
     <dimen name="lb_browse_headers_vertical_margin">21dp</dimen>
     <dimen name="lb_browse_headers_width">270dp</dimen>
@@ -125,7 +69,6 @@
     <dimen name="lb_details_description_under_subtitle_baseline_margin">32dp</dimen>
     <dimen name="lb_details_description_under_title_baseline_margin">32dp</dimen>
     <dimen name="lb_details_overview_action_items_margin">16dp</dimen>
-    <item format="integer" name="lb_details_overview_action_select_duration" type="dimen">150</item>
     <dimen name="lb_details_overview_actions_fade_size">16dp</dimen>
     <dimen name="lb_details_overview_actions_height">56dp</dimen>
     <dimen name="lb_details_overview_actions_padding_end">132dp</dimen>
@@ -234,6 +177,9 @@
     <dimen name="lb_search_orb_size">52dp</dimen>
     <dimen name="lb_search_orb_unfocused_z">2dp</dimen>
     <dimen name="lb_vertical_grid_padding_bottom">87dp</dimen>
+
+
+
     <item name="lb_browse_header_unselect_alpha" type="fraction">50%</item>
     <item name="lb_browse_rows_scale" type="fraction">80%</item>
     <item name="lb_focus_zoom_factor_large" type="fraction">118%</item>
@@ -244,6 +190,12 @@
     <item name="lb_search_orb_focused_zoom" type="fraction">120%</item>
     <item name="lb_view_active_level" type="fraction">0%</item>
     <item name="lb_view_dimmed_level" type="fraction">60%</item>
+
+    <item format="integer" name="lb_browse_header_select_duration" type="dimen">150</item>
+    <item format="float" name="lb_browse_header_select_scale" type="dimen">1.2</item>
+    <item format="integer" name="lb_details_overview_action_select_duration" type="dimen">150</item>
+
+
     <!-- From: file:/usr/local/google/buildbot/repo_clients/https___googleplex-android.googlesource.com_a_platform_manifest.git/mnc-supportlib-release/frameworks/support/v17/leanback/res/values/ids.xml -->
     <eat-comment/>
     <item name="lb_control_closed_captioning" type="id"/>
