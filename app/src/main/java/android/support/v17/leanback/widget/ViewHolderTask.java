@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
+ * Copyright (C) 2015 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -11,28 +11,13 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package android.support.v17.leanback.transition;
+package android.support.v17.leanback.widget;
+
+import android.support.v7.widget.RecyclerView;
 
 /**
- * Listeners for transition start and stop.
- * @hide
+ * Interface for schedule task on a ViewHolder.
  */
-public class TransitionListener {
-
-    protected Object mImpl;
-
-    public void onTransitionStart(Object transition) {
-    }
-
-    public void onTransitionEnd(Object transition) {
-    }
-
-    public void onTransitionCancel(Object transition) {
-    }
-
-    public void onTransitionPause(Object transition) {
-    }
-
-    public void onTransitionResume(Object transition) {
-    }
+public interface ViewHolderTask {
+    public void run(RecyclerView.ViewHolder viewHolder);
 }
