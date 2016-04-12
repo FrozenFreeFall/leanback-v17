@@ -73,8 +73,8 @@ public class VerticalGridView extends BaseGridView {
      * Sets the number of columns.  Defaults to one.
      */
     public void setNumColumns(int numColumns) {
+        //TESDFD ASDASD SAD
         mLayoutManager.setNumRows(numColumns);
-        requestLayout();
     }
 
     /**
@@ -86,6 +86,5 @@ public class VerticalGridView extends BaseGridView {
      */
     public void setColumnWidth(int width) {
         mLayoutManager.setRowHeight(width);
-        requestLayout();
     }
 }
