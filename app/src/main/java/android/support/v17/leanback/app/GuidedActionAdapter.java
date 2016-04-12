@@ -232,7 +232,7 @@ class GuidedActionAdapter extends RecyclerView.Adapter {
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         GuidedActionsStylist.ViewHolder vh = mStylist.onCreateViewHolder(parent);
-        View v = vh.view;
+        View v = vh.getContentView();
         v.setOnKeyListener(mActionOnKeyListener);
         v.setOnClickListener(mOnClickListener);
         v.setOnFocusChangeListener(mActionOnFocusListener);

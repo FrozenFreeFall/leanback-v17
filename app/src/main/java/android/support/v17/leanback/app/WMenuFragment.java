@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.v17.leanback.R;
+import android.support.v17.leanback.transition.TransitionHelper;
 import android.support.v17.leanback.transition.TransitionListener;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.BrowseFrameLayout;
@@ -409,7 +410,7 @@ public class WMenuFragment extends BaseFragment {
                 if (mBrowseTransitionListener != null) {
                     mBrowseTransitionListener.onHeadersTransitionStart(withHeaders);
                 }
-                sTransitionHelper.runTransition(withHeaders ? mSceneWithHeaders : mSceneWithoutHeaders,
+                TransitionHelper.runTransition(withHeaders ? mSceneWithHeaders : mSceneWithoutHeaders,
                         mHeadersTransition);
                 if (mHeadersBackStackEnabled) {
                     if (!withHeaders) {
@@ -606,19 +607,19 @@ public class WMenuFragment extends BaseFragment {
             mMenuFragment.setBackgroundColor(mBrandColor);
         }
 
-        mSceneWithHeaders = sTransitionHelper.createScene(mBrowseFrame, new Runnable() {
+        mSceneWithHeaders = TransitionHelper.createScene(mBrowseFrame, new Runnable() {
             @Override
             public void run() {
                 showHeaders(true);
             }
         });
-        mSceneWithoutHeaders =  sTransitionHelper.createScene(mBrowseFrame, new Runnable() {
+        mSceneWithoutHeaders =  TransitionHelper.createScene(mBrowseFrame, new Runnable() {
             @Override
             public void run() {
                 showHeaders(false);
             }
         });
-        mSceneAfterEntranceTransition = sTransitionHelper.createScene(mBrowseFrame, new Runnable() {
+        mSceneAfterEntranceTransition = TransitionHelper.createScene(mBrowseFrame, new Runnable() {
             @Override
             public void run() {
                 setEntranceTransitionEndState();
@@ -628,11 +629,11 @@ public class WMenuFragment extends BaseFragment {
     }
 
     private void createHeadersTransition() {
-        mHeadersTransition = sTransitionHelper.loadTransition(getActivity(),
+        mHeadersTransition = TransitionHelper.loadTransition(getActivity(),
                 mShowingHeaders ?
                 R.transition.lb_browse_headers_in : R.transition.lb_browse_headers_out);
 
-        sTransitionHelper.setTransitionListener(mHeadersTransition, new TransitionListener() {
+        TransitionHelper.setTransitionListener(mHeadersTransition, new TransitionListener() {
             @Override
             public void onTransitionStart(Object transition) {
             }
@@ -701,7 +702,8 @@ public class WMenuFragment extends BaseFragment {
     private HeadersFragment.OnHeaderClickedListener mHeaderClickedListener =
         new HeadersFragment.OnHeaderClickedListener() {
             @Override
-            public void onHeaderClicked() {
+            public void onHeaderClicked(RowHeaderPresenter.ViewHolder viewHolder, Row row) {
+
                 if (!mCanShowHeaders || !mShowingHeaders || isInHeadersTransition()) {
                     return;
                 }
@@ -930,13 +932,13 @@ public class WMenuFragment extends BaseFragment {
 
     @Override
     protected Object createEntranceTransition() {
-        return sTransitionHelper.loadTransition(getActivity(),
+        return TransitionHelper.loadTransition(getActivity(),
                 R.transition.lb_browse_entrance_transition);
     }
 
     @Override
     protected void runEntranceTransition(Object entranceTransition) {
-        sTransitionHelper.runTransition(mSceneAfterEntranceTransition,
+        TransitionHelper.runTransition(mSceneAfterEntranceTransition,
                 entranceTransition);
     }
 
