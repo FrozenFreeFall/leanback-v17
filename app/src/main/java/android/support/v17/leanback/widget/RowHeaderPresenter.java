@@ -13,8 +13,12 @@
  */
 package android.support.v17.leanback.widget;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.graphics.Paint;
+import android.support.annotation.RestrictTo;
 import android.support.v17.leanback.R;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,7 +26,8 @@ import android.widget.TextView;
 
 /**
  * RowHeaderPresenter provides a default presentation for {@link HeaderItem} using a
- * {@link RowHeaderView}. If a subclass creates its own view, the subclass must also override
+ * {@link RowHeaderView} and optionally a TextView for description. If a subclass creates its own
+ * view, the subclass must also override {@link #onCreateViewHolder(ViewGroup)},
  * {@link #onSelectLevelChanged(ViewHolder)}.
  */
 public class RowHeaderPresenter extends Presenter {
@@ -30,7 +35,12 @@ public class RowHeaderPresenter extends Presenter {
     private final int mLayoutResourceId;
     private final Paint mFontMeasurePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private boolean mNullItemVisibilityGone;
+    private final boolean mAnimateSelect;
 
+    /**
+     * Creates default RowHeaderPresenter using a title view and a description view.
+     * @see ViewHolder#ViewHolder(View)
+     */
     public RowHeaderPresenter() {
         this(R.layout.lb_row_header);
     }
@@ -38,8 +48,18 @@ public class RowHeaderPresenter extends Presenter {
     /**
      * @hide
      */
+    @RestrictTo(LIBRARY_GROUP)
     public RowHeaderPresenter(int layoutResourceId) {
+        this(layoutResourceId, true);
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public RowHeaderPresenter(int layoutResourceId, boolean animateSelect) {
         mLayoutResourceId = layoutResourceId;
+        mAnimateSelect = animateSelect;
     }
 
     /**
@@ -63,10 +83,41 @@ public class RowHeaderPresenter extends Presenter {
         float mSelectLevel;
         int mOriginalTextColor;
         float mUnselectAlpha;
+        RowHeaderView mTitleView;
+        TextView mDescriptionView;
 
+        /**
+         * Creating a new ViewHolder that supports title and description.
+         * @param view Root of Views.
+         */
         public ViewHolder(View view) {
             super(view);
+            mTitleView = (RowHeaderView)view.findViewById(R.id.row_header);
+            mDescriptionView = (TextView)view.findViewById(R.id.row_header_description);
+            initColors();
         }
+
+        /**
+         * Uses a single {@link RowHeaderView} for creating a new ViewHolder.
+         * @param view The single RowHeaderView.
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        public ViewHolder(RowHeaderView view) {
+            super(view);
+            mTitleView = view;
+            initColors();
+        }
+
+        void initColors() {
+            if (mTitleView != null) {
+                mOriginalTextColor = mTitleView.getCurrentTextColor();
+            }
+
+            mUnselectAlpha = view.getResources().getFraction(
+                    R.fraction.lb_browse_header_unselect_alpha, 1, 1);
+        }
+
         public final float getSelectLevel() {
             return mSelectLevel;
         }
@@ -74,35 +125,62 @@ public class RowHeaderPresenter extends Presenter {
 
     @Override
     public Presenter.ViewHolder onCreateViewHolder(ViewGroup parent) {
-        RowHeaderView headerView = (RowHeaderView) LayoutInflater.from(parent.getContext())
+        View root = LayoutInflater.from(parent.getContext())
                 .inflate(mLayoutResourceId, parent, false);
 
-        ViewHolder viewHolder = new ViewHolder(headerView);
-        viewHolder.mOriginalTextColor = headerView.getCurrentTextColor();
-        viewHolder.mUnselectAlpha = parent.getResources().getFraction(
-                R.fraction.lb_browse_header_unselect_alpha, 1, 1);
-        setSelectLevel(viewHolder, 0);
+        ViewHolder viewHolder = new ViewHolder(root);
+        if (mAnimateSelect) {
+            setSelectLevel(viewHolder, 0);
+        }
         return viewHolder;
     }
 
     @Override
     public void onBindViewHolder(Presenter.ViewHolder viewHolder, Object item) {
         HeaderItem headerItem = item == null ? null : ((Row) item).getHeaderItem();
+        RowHeaderPresenter.ViewHolder vh = (RowHeaderPresenter.ViewHolder)viewHolder;
         if (headerItem == null) {
-            ((RowHeaderView) viewHolder.view).setText(null);
+            if (vh.mTitleView != null) {
+                vh.mTitleView.setText(null);
+            }
+            if (vh.mDescriptionView != null) {
+                vh.mDescriptionView.setText(null);
+            }
+
+            viewHolder.view.setContentDescription(null);
             if (mNullItemVisibilityGone) {
                 viewHolder.view.setVisibility(View.GONE);
             }
         } else {
+            if (vh.mTitleView != null) {
+                vh.mTitleView.setText(headerItem.getName());
+            }
+            if (vh.mDescriptionView != null) {
+                if (TextUtils.isEmpty(headerItem.getDescription())) {
+                    vh.mDescriptionView.setVisibility(View.GONE);
+                } else {
+                    vh.mDescriptionView.setVisibility(View.VISIBLE);
+                }
+                vh.mDescriptionView.setText(headerItem.getDescription());
+            }
+            viewHolder.view.setContentDescription(headerItem.getContentDescription());
             viewHolder.view.setVisibility(View.VISIBLE);
-            ((RowHeaderView) viewHolder.view).setText(headerItem.getName());
         }
     }
 
     @Override
     public void onUnbindViewHolder(Presenter.ViewHolder viewHolder) {
-        ((RowHeaderView) viewHolder.view).setText(null);
-        setSelectLevel((ViewHolder) viewHolder, 0);
+        RowHeaderPresenter.ViewHolder vh = (ViewHolder)viewHolder;
+        if (vh.mTitleView != null) {
+            vh.mTitleView.setText(null);
+        }
+        if (vh.mDescriptionView != null) {
+            vh.mDescriptionView.setText(null);
+        }
+
+        if (mAnimateSelect) {
+            setSelectLevel((ViewHolder) viewHolder, 0);
+        }
     }
 
     /**
@@ -117,8 +195,10 @@ public class RowHeaderPresenter extends Presenter {
      * Called when the select level changes.  The default implementation sets the alpha on the view.
      */
     protected void onSelectLevelChanged(ViewHolder holder) {
-        holder.view.setAlpha(holder.mUnselectAlpha + holder.mSelectLevel *
-                (1f - holder.mUnselectAlpha));
+        if (mAnimateSelect) {
+            holder.view.setAlpha(holder.mUnselectAlpha + holder.mSelectLevel
+                    * (1f - holder.mUnselectAlpha));
+        }
     }
 
     /**

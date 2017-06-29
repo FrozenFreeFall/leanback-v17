@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.v17.leanback.R;
+import android.support.v17.leanback.transition.TransitionHelper;
 import android.support.v17.leanback.transition.TransitionListener;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.BrowseFrameLayout;
@@ -401,6 +402,7 @@ public class WMenuFragment extends BaseFragment {
             return;
         }
         mShowingHeaders = withHeaders;
+    /*
         mRowsFragment.onExpandTransitionStart(!withHeaders, new Runnable() {
             @Override
             public void run() {
@@ -409,7 +411,7 @@ public class WMenuFragment extends BaseFragment {
                 if (mBrowseTransitionListener != null) {
                     mBrowseTransitionListener.onHeadersTransitionStart(withHeaders);
                 }
-                sTransitionHelper.runTransition(withHeaders ? mSceneWithHeaders : mSceneWithoutHeaders,
+                TransitionHelper.runTransition(withHeaders ? mSceneWithHeaders : mSceneWithoutHeaders,
                         mHeadersTransition);
                 if (mHeadersBackStackEnabled) {
                     if (!withHeaders) {
@@ -425,7 +427,7 @@ public class WMenuFragment extends BaseFragment {
                     }
                 }
             }
-        });
+        });*/
     }
 
     private boolean isVerticalScrolling() {
@@ -449,7 +451,8 @@ public class WMenuFragment extends BaseFragment {
 
             if (getTitleView() != null && focused != getTitleView() &&
                     direction == View.FOCUS_UP) {
-                return getTitleView().focusSearch(focused, direction);
+                return getTitleView().focusSearch(direction);
+                //return getTitleView().focusSearch(focused, direction);
             }
             if (getTitleView() != null && getTitleView().hasFocus() &&
                     direction == View.FOCUS_DOWN) {
@@ -606,19 +609,19 @@ public class WMenuFragment extends BaseFragment {
             mMenuFragment.setBackgroundColor(mBrandColor);
         }
 
-        mSceneWithHeaders = sTransitionHelper.createScene(mBrowseFrame, new Runnable() {
+        mSceneWithHeaders = TransitionHelper.createScene(mBrowseFrame, new Runnable() {
             @Override
             public void run() {
                 showHeaders(true);
             }
         });
-        mSceneWithoutHeaders =  sTransitionHelper.createScene(mBrowseFrame, new Runnable() {
+        mSceneWithoutHeaders =  TransitionHelper.createScene(mBrowseFrame, new Runnable() {
             @Override
             public void run() {
                 showHeaders(false);
             }
         });
-        mSceneAfterEntranceTransition = sTransitionHelper.createScene(mBrowseFrame, new Runnable() {
+        mSceneAfterEntranceTransition = TransitionHelper.createScene(mBrowseFrame, new Runnable() {
             @Override
             public void run() {
                 setEntranceTransitionEndState();
@@ -628,11 +631,11 @@ public class WMenuFragment extends BaseFragment {
     }
 
     private void createHeadersTransition() {
-        mHeadersTransition = sTransitionHelper.loadTransition(getActivity(),
+        mHeadersTransition = TransitionHelper.loadTransition(getActivity(),
                 mShowingHeaders ?
                 R.transition.lb_browse_headers_in : R.transition.lb_browse_headers_out);
 
-        sTransitionHelper.setTransitionListener(mHeadersTransition, new TransitionListener() {
+        TransitionHelper.setTransitionListener(mHeadersTransition, new TransitionListener() {
             @Override
             public void onTransitionStart(Object transition) {
             }
@@ -701,7 +704,7 @@ public class WMenuFragment extends BaseFragment {
     private HeadersFragment.OnHeaderClickedListener mHeaderClickedListener =
         new HeadersFragment.OnHeaderClickedListener() {
             @Override
-            public void onHeaderClicked() {
+            public void onHeaderClicked(RowHeaderPresenter.ViewHolder viewHolder, Row row) {
                 if (!mCanShowHeaders || !mShowingHeaders || isInHeadersTransition()) {
                     return;
                 }
@@ -717,11 +720,11 @@ public class WMenuFragment extends BaseFragment {
 
             int position = mRowsFragment.getVerticalGridView().getSelectedPosition();
 			if (position == 0) {
-				mRowsFragment.setWindowAlignmentFromTop(mContainerListFirstItemAlignTop);
-				mRowsFragment.setItemAlignment();
+				mRowsFragment.setAlignment(mContainerListFirstItemAlignTop);
+				//mRowsFragment.setItemAlignment();
 			} else {
-				mRowsFragment.setWindowAlignmentFromTop(mContainerListAlignTop);
-				mRowsFragment.setItemAlignment();
+				mRowsFragment.setAlignment(mContainerListAlignTop);
+				//mRowsFragment.setItemAlignment();
 			}
             onRowSelected(position);
 			if (row instanceof ListRow) {
@@ -831,9 +834,9 @@ public class WMenuFragment extends BaseFragment {
     @Override
     public void onStart() {
         super.onStart();
-        mMenuFragment.setWindowAlignmentFromTop(mContainerListAlignTop);
-        mMenuFragment.setItemAlignment();
-        mRowsFragment.setScalePivots(0, mContainerListAlignTop);
+        mMenuFragment.setAlignment(mContainerListAlignTop);
+        //mMenuFragment.setItemAlignment();
+        //mRowsFragment.setScalePivots(0, mContainerListAlignTop);
 
         if (mCanShowHeaders && mShowingHeaders && mMenuFragment.getView() != null) {
             mMenuFragment.getView().requestFocus();
@@ -930,13 +933,13 @@ public class WMenuFragment extends BaseFragment {
 
     @Override
     protected Object createEntranceTransition() {
-        return sTransitionHelper.loadTransition(getActivity(),
+        return TransitionHelper.loadTransition(getActivity(),
                 R.transition.lb_browse_entrance_transition);
     }
 
     @Override
     protected void runEntranceTransition(Object entranceTransition) {
-        sTransitionHelper.runTransition(mSceneAfterEntranceTransition,
+        TransitionHelper.runTransition(mSceneAfterEntranceTransition,
                 entranceTransition);
     }
 
@@ -953,10 +956,11 @@ public class WMenuFragment extends BaseFragment {
     }
 
     void setSearchOrbViewOnScreen(boolean onScreen) {
-        View searchOrbView = getTitleView().getSearchAffordanceView();
+    /*    View searchOrbView = getTitleView().getSearchAffordanceView();
         MarginLayoutParams lp = (MarginLayoutParams) searchOrbView.getLayoutParams();
         lp.setMarginStart(onScreen ? 0 : -mContainerListMarginStart);
         searchOrbView.setLayoutParams(lp);
+        */
     }
 
     void setEntranceTransitionStartState() {
@@ -975,7 +979,7 @@ public class WMenuFragment extends BaseFragment {
     	return mRowsFragment.getVerticalGridView();
     }
     
-    public TitleView getTitleView() {
+    public View getTitleView() {
     	return super.getTitleView();
     }
 

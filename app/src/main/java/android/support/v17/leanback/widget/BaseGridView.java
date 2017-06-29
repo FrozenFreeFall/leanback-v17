@@ -13,17 +13,20 @@
  */
 package android.support.v17.leanback.widget;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Rect;
+import android.support.annotation.RestrictTo;
 import android.support.v17.leanback.R;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SimpleItemAnimator;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
-import android.support.v7.widget.SimpleItemAnimator;
 
 /**
  * An abstract base class for vertically and horizontally scrolling lists. The items come
@@ -31,6 +34,7 @@ import android.support.v7.widget.SimpleItemAnimator;
  * Do not directly use this class, use {@link VerticalGridView} and {@link HorizontalGridView}.
  * @hide
  */
+@RestrictTo(LIBRARY_GROUP)
 abstract class BaseGridView extends RecyclerView {
 
     /**
@@ -187,13 +191,20 @@ abstract class BaseGridView extends RecyclerView {
     private OnTouchInterceptListener mOnTouchInterceptListener;
     private OnMotionInterceptListener mOnMotionInterceptListener;
     private OnKeyInterceptListener mOnKeyInterceptListener;
-    private RecyclerView.RecyclerListener mChainedRecyclerListener;
+    RecyclerView.RecyclerListener mChainedRecyclerListener;
     private OnUnhandledKeyListener mOnUnhandledKeyListener;
+
+    /**
+     * Number of items to prefetch when first coming on screen with new data.
+     */
+    int mInitialPrefetchItemCount = 4;
 
     public BaseGridView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         mLayoutManager = new GridLayoutManager(this);
         setLayoutManager(mLayoutManager);
+        // leanback LayoutManager already restores focus inside onLayoutChildren().
+        setPreserveFocusAfterLayout(false);
         setDescendantFocusability(FOCUS_AFTER_DESCENDANTS);
         setHasFixedSize(true);
         setChildrenDrawingOrderEnabled(true);
@@ -222,10 +233,12 @@ abstract class BaseGridView extends RecyclerView {
         boolean throughSideStart = a.getBoolean(R.styleable.lbBaseGridView_focusOutSideStart, true);
         boolean throughSideEnd = a.getBoolean(R.styleable.lbBaseGridView_focusOutSideEnd, true);
         mLayoutManager.setFocusOutSideAllowed(throughSideStart, throughSideEnd);
-        mLayoutManager.setVerticalMargin(
-                a.getDimensionPixelSize(R.styleable.lbBaseGridView_verticalMargin, 0));
-        mLayoutManager.setHorizontalMargin(
-                a.getDimensionPixelSize(R.styleable.lbBaseGridView_horizontalMargin, 0));
+        mLayoutManager.setVerticalSpacing(
+                a.getDimensionPixelSize(R.styleable.lbBaseGridView_android_verticalSpacing,
+                        a.getDimensionPixelSize(R.styleable.lbBaseGridView_verticalMargin, 0)));
+        mLayoutManager.setHorizontalSpacing(
+                a.getDimensionPixelSize(R.styleable.lbBaseGridView_android_horizontalSpacing,
+                        a.getDimensionPixelSize(R.styleable.lbBaseGridView_horizontalMargin, 0)));
         if (a.hasValue(R.styleable.lbBaseGridView_android_gravity)) {
             setGravity(a.getInt(R.styleable.lbBaseGridView_android_gravity, Gravity.NO_GRAVITY));
         }
@@ -328,7 +341,7 @@ abstract class BaseGridView extends RecyclerView {
      * Returns the offset percent for window alignment in addition to
      * {@link #getWindowAlignmentOffset()}.
      *
-     * @return Percentage to offset. E.g., 40 means 40% of the width from the 
+     * @return Percentage to offset. E.g., 40 means 40% of the width from the
      *         low edge, or {@link #WINDOW_ALIGN_OFFSET_PERCENT_DISABLED} if
      *         disabled. Default value is 50.
      */
@@ -426,41 +439,86 @@ abstract class BaseGridView extends RecyclerView {
     }
 
     /**
-     * Sets the margin in pixels between two child items.
+     * Sets the spacing in pixels between two child items.
+     * @deprecated use {@link #setItemSpacing(int)}
      */
+    @Deprecated
     public void setItemMargin(int margin) {
-        mLayoutManager.setItemMargin(margin);
+        setItemSpacing(margin);
+    }
+
+    /**
+     * Sets the spacing in pixels between two child items.
+     */
+    public void setItemSpacing(int spacing) {
+        mLayoutManager.setItemSpacing(spacing);
         requestLayout();
     }
 
     /**
-     * Sets the margin in pixels between two child items vertically.
+     * Sets the spacing in pixels between two child items vertically.
+     * @deprecated Use {@link #setVerticalSpacing(int)}
      */
+    @Deprecated
     public void setVerticalMargin(int margin) {
-        mLayoutManager.setVerticalMargin(margin);
-        requestLayout();
+        setVerticalSpacing(margin);
     }
 
     /**
-     * Returns the margin in pixels between two child items vertically.
+     * Returns the spacing in pixels between two child items vertically.
+     * @deprecated Use {@link #getVerticalSpacing()}
      */
+    @Deprecated
     public int getVerticalMargin() {
-        return mLayoutManager.getVerticalMargin();
+        return mLayoutManager.getVerticalSpacing();
     }
 
     /**
-     * Sets the margin in pixels between two child items horizontally.
+     * Sets the spacing in pixels between two child items horizontally.
+     * @deprecated Use {@link #setHorizontalSpacing(int)}
      */
+    @Deprecated
     public void setHorizontalMargin(int margin) {
-        mLayoutManager.setHorizontalMargin(margin);
+        setHorizontalSpacing(margin);
+    }
+
+    /**
+     * Returns the spacing in pixels between two child items horizontally.
+     * @deprecated Use {@link #getHorizontalSpacing()}
+     */
+    @Deprecated
+    public int getHorizontalMargin() {
+        return mLayoutManager.getHorizontalSpacing();
+    }
+
+    /**
+     * Sets the spacing in pixels between two child items vertically.
+     */
+    public void setVerticalSpacing(int spacing) {
+        mLayoutManager.setVerticalSpacing(spacing);
         requestLayout();
     }
 
     /**
-     * Returns the margin in pixels between two child items horizontally.
+     * Returns the spacing in pixels between two child items vertically.
      */
-    public int getHorizontalMargin() {
-        return mLayoutManager.getHorizontalMargin();
+    public int getVerticalSpacing() {
+        return mLayoutManager.getVerticalSpacing();
+    }
+
+    /**
+     * Sets the spacing in pixels between two child items horizontally.
+     */
+    public void setHorizontalSpacing(int spacing) {
+        mLayoutManager.setHorizontalSpacing(spacing);
+        requestLayout();
+    }
+
+    /**
+     * Returns the spacing in pixels between two child items horizontally.
+     */
+    public int getHorizontalSpacing() {
+        return mLayoutManager.getHorizontalSpacing();
     }
 
     /**
@@ -525,14 +583,14 @@ abstract class BaseGridView extends RecyclerView {
      * Changes the selected item immediately without animation.
      */
     public void setSelectedPosition(int position) {
-        mLayoutManager.setSelection(this, position, 0);
+        mLayoutManager.setSelection(position, 0);
     }
 
     /**
      * Changes the selected item and/or subposition immediately without animation.
      */
     public void setSelectedPositionWithSub(int position, int subposition) {
-        mLayoutManager.setSelectionWithSub(this, position, subposition, 0);
+        mLayoutManager.setSelectionWithSub(position, subposition, 0);
     }
 
     /**
@@ -541,7 +599,7 @@ abstract class BaseGridView extends RecyclerView {
      * another {@link #setSelectedPosition} or {@link #setSelectedPositionSmooth} call.
      */
     public void setSelectedPosition(int position, int scrollExtra) {
-        mLayoutManager.setSelection(this, position, scrollExtra);
+        mLayoutManager.setSelection(position, scrollExtra);
     }
 
     /**
@@ -550,7 +608,7 @@ abstract class BaseGridView extends RecyclerView {
      * another {@link #setSelectedPosition} or {@link #setSelectedPositionSmooth} call.
      */
     public void setSelectedPositionWithSub(int position, int subposition, int scrollExtra) {
-        mLayoutManager.setSelectionWithSub(this, position, subposition, scrollExtra);
+        mLayoutManager.setSelectionWithSub(position, subposition, scrollExtra);
     }
 
     /**
@@ -558,7 +616,7 @@ abstract class BaseGridView extends RecyclerView {
      * position.
      */
     public void setSelectedPositionSmooth(int position) {
-        mLayoutManager.setSelectionSmooth(this, position);
+        mLayoutManager.setSelectionSmooth(position);
     }
 
     /**
@@ -566,7 +624,7 @@ abstract class BaseGridView extends RecyclerView {
      * position.
      */
     public void setSelectedPositionSmoothWithSub(int position, int subposition) {
-        mLayoutManager.setSelectionSmoothWithSub(this, position, subposition);
+        mLayoutManager.setSelectionSmoothWithSub(position, subposition);
     }
 
     /**
@@ -577,8 +635,9 @@ abstract class BaseGridView extends RecyclerView {
     public void setSelectedPositionSmooth(final int position, final ViewHolderTask task) {
         if (task != null) {
             RecyclerView.ViewHolder vh = findViewHolderForPosition(position);
-            if (vh == null) {
+            if (vh == null || hasPendingAdapterUpdates()) {
                 addOnChildViewHolderSelectedListener(new OnChildViewHolderSelectedListener() {
+                    @Override
                     public void onChildViewHolderSelected(RecyclerView parent,
                             RecyclerView.ViewHolder child, int selectedPosition, int subposition) {
                         if (selectedPosition == position) {
@@ -602,9 +661,10 @@ abstract class BaseGridView extends RecyclerView {
     public void setSelectedPosition(final int position, final ViewHolderTask task) {
         if (task != null) {
             RecyclerView.ViewHolder vh = findViewHolderForPosition(position);
-            if (vh == null) {
+            if (vh == null || hasPendingAdapterUpdates()) {
                 addOnChildViewHolderSelectedListener(new OnChildViewHolderSelectedListener() {
-                    public void onChildViewHolderSelected(RecyclerView parent,
+                    @Override
+                    public void onChildViewHolderSelectedAndPositioned(RecyclerView parent,
                             RecyclerView.ViewHolder child, int selectedPosition, int subposition) {
                         if (selectedPosition == position) {
                             removeOnChildViewHolderSelectedListener(this);
@@ -841,10 +901,7 @@ abstract class BaseGridView extends RecyclerView {
         if (super.dispatchKeyEvent(event)) {
             return true;
         }
-        if (mOnUnhandledKeyListener != null && mOnUnhandledKeyListener.onUnhandledKey(event)) {
-            return true;
-        }
-        return false;
+        return mOnUnhandledKeyListener != null && mOnUnhandledKeyListener.onUnhandledKey(event);
     }
 
     @Override
@@ -930,6 +987,7 @@ abstract class BaseGridView extends RecyclerView {
      *                          Must be bigger or equals to 0.
      * @hide
      */
+    @RestrictTo(LIBRARY_GROUP)
     public void setExtraLayoutSpace(int extraLayoutSpace) {
         mLayoutManager.setExtraLayoutSpace(extraLayoutSpace);
     }
@@ -939,8 +997,93 @@ abstract class BaseGridView extends RecyclerView {
      *
      * @hide
      */
+    @RestrictTo(LIBRARY_GROUP)
     public int getExtraLayoutSpace() {
         return mLayoutManager.getExtraLayoutSpace();
     }
 
+    /**
+     * Temporarily slide out child views to bottom (for VerticalGridView) or end
+     * (for HorizontalGridView). Layout and scrolling will be suppressed until
+     * {@link #animateIn()} is called.
+     */
+    public void animateOut() {
+        mLayoutManager.slideOut();
+    }
+
+    /**
+     * Undo animateOut() and slide in child views.
+     */
+    public void animateIn() {
+        mLayoutManager.slideIn();
+    }
+
+    @Override
+    public void scrollToPosition(int position) {
+        // dont abort the animateOut() animation, just record the position
+        if (mLayoutManager.mIsSlidingChildViews) {
+            mLayoutManager.setSelectionWithSub(position, 0, 0);
+            return;
+        }
+        super.scrollToPosition(position);
+    }
+
+    @Override
+    public void smoothScrollToPosition(int position) {
+        // dont abort the animateOut() animation, just record the position
+        if (mLayoutManager.mIsSlidingChildViews) {
+            mLayoutManager.setSelectionWithSub(position, 0, 0);
+            return;
+        }
+        super.smoothScrollToPosition(position);
+    }
+
+    /**
+     * Sets the number of items to prefetch in
+     * {@link RecyclerView.LayoutManager#collectInitialPrefetchPositions(int, RecyclerView.LayoutManager.LayoutPrefetchRegistry)},
+     * which defines how many inner items should be prefetched when this GridView is nested inside
+     * another RecyclerView.
+     *
+     * <p>Set this value to the number of items this inner GridView will display when it is
+     * first scrolled into the viewport. RecyclerView will attempt to prefetch that number of items
+     * so they are ready, avoiding jank as the inner GridView is scrolled into the viewport.</p>
+     *
+     * <p>For example, take a VerticalGridView of scrolling HorizontalGridViews. The rows always
+     * have 6 items visible in them (or 7 if not aligned). Passing <code>6</code> to this method
+     * for each inner GridView will enable RecyclerView's prefetching feature to do create/bind work
+     * for 6 views within a row early, before it is scrolled on screen, instead of just the default
+     * 4.</p>
+     *
+     * <p>Calling this method does nothing unless the LayoutManager is in a RecyclerView
+     * nested in another RecyclerView.</p>
+     *
+     * <p class="note"><strong>Note:</strong> Setting this value to be larger than the number of
+     * views that will be visible in this view can incur unnecessary bind work, and an increase to
+     * the number of Views created and in active use.</p>
+     *
+     * @param itemCount Number of items to prefetch
+     *
+     * @see #getInitialPrefetchItemCount()
+     * @see RecyclerView.LayoutManager#isItemPrefetchEnabled()
+     * @see RecyclerView.LayoutManager#collectInitialPrefetchPositions(int, RecyclerView.LayoutManager.LayoutPrefetchRegistry)
+     */
+    public void setInitialPrefetchItemCount(int itemCount) {
+        mInitialPrefetchItemCount = itemCount;
+    }
+
+    /**
+     * Gets the number of items to prefetch in
+     * {@link RecyclerView.LayoutManager#collectInitialPrefetchPositions(int, RecyclerView.LayoutManager.LayoutPrefetchRegistry)},
+     * which defines how many inner items should be prefetched when this GridView is nested inside
+     * another RecyclerView.
+     *
+     * @see RecyclerView.LayoutManager#isItemPrefetchEnabled()
+     * @see #setInitialPrefetchItemCount(int)
+     * @see RecyclerView.LayoutManager#collectInitialPrefetchPositions(int, RecyclerView.LayoutManager.LayoutPrefetchRegistry)
+     *
+     * @return number of items to prefetch.
+     */
+    public int getInitialPrefetchItemCount() {
+        return mInitialPrefetchItemCount;
+    }
 }

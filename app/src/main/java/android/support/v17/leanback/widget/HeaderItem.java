@@ -23,6 +23,8 @@ public class HeaderItem {
 
     private final long mId;
     private final String mName;
+    private CharSequence mDescription;
+    private CharSequence mContentDescription;
 
     /**
      * Create a header item.  All fields are optional.
@@ -51,5 +53,37 @@ public class HeaderItem {
      */
     public final String getName() {
         return mName;
+    }
+
+    /**
+     * Returns optional content description for the HeaderItem.  When it is null, {@link #getName()}
+     * should be used for the content description.
+     * @return Content description for the HeaderItem.
+     */
+    public CharSequence getContentDescription() {
+        return mContentDescription;
+    }
+
+    /**
+     * Sets optional content description for the HeaderItem.
+     * @param contentDescription Content description sets on the HeaderItem.
+     */
+    public void setContentDescription(CharSequence contentDescription) {
+        mContentDescription = contentDescription;
+    }
+
+    /**
+     * Sets the description for the current header item. This will be visible when
+     * the row receives focus.
+     */
+    public void setDescription(CharSequence description) {
+        this.mDescription = description;
+    }
+
+    /**
+     * Returns the description for the current row.
+     */
+    public CharSequence getDescription() {
+        return mDescription;
     }
 }

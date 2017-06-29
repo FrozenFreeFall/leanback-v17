@@ -14,14 +14,11 @@
 
 package android.support.v17.leanback.widget;
 
-import static android.support.v17.leanback.widget.BaseGridView.WINDOW_ALIGN_LOW_EDGE;
-import static android.support.v17.leanback.widget.BaseGridView.WINDOW_ALIGN_HIGH_EDGE;
 import static android.support.v17.leanback.widget.BaseGridView.WINDOW_ALIGN_BOTH_EDGE;
+import static android.support.v17.leanback.widget.BaseGridView.WINDOW_ALIGN_HIGH_EDGE;
+import static android.support.v17.leanback.widget.BaseGridView.WINDOW_ALIGN_LOW_EDGE;
 import static android.support.v17.leanback.widget.BaseGridView.WINDOW_ALIGN_OFFSET_PERCENT_DISABLED;
-
 import static android.support.v7.widget.RecyclerView.HORIZONTAL;
-
-import android.view.View;
 
 /**
  * Maintains Window Alignment information of two axis.
@@ -38,11 +35,11 @@ class WindowAlignment {
          * will be scaled up.
          */
         private float mScrollCenter;
-        /** 
-         * Right or bottom edge of last child. 
+        /**
+         * Right or bottom edge of last child.
          */
         private int mMaxEdge;
-        /** 
+        /**
          * Left or top edge of first child, typically should be zero.
          */
         private int mMinEdge;
@@ -159,7 +156,7 @@ class WindowAlignment {
             return scrollTarget;
         }
 
-        private void reset() {
+        void reset() {
             mScrollCenter = Integer.MIN_VALUE;
             mMinEdge = Integer.MIN_VALUE;
             mMaxEdge = Integer.MAX_VALUE;
@@ -227,8 +224,8 @@ class WindowAlignment {
             int afterMiddlePosition = clientSize - middlePosition;
             boolean isMinUnknown = isMinUnknown();
             boolean isMaxUnknown = isMaxUnknown();
-            if (!isMinUnknown && !isMaxUnknown &&
-                    (mWindowAlignment & WINDOW_ALIGN_BOTH_EDGE) == WINDOW_ALIGN_BOTH_EDGE) {
+            if (!isMinUnknown && !isMaxUnknown
+                    && (mWindowAlignment & WINDOW_ALIGN_BOTH_EDGE) == WINDOW_ALIGN_BOTH_EDGE) {
                 if (mMaxEdge - mMinEdge <= clientSize) {
                     // total children size is less than view port and we want to align
                     // both edge:  align first child to start edge of view port
@@ -264,8 +261,7 @@ class WindowAlignment {
 
         @Override
         public String toString() {
-            return "center: " + mScrollCenter + " min:" + mMinEdge +
-                    " max:" + mMaxEdge;
+            return "center: " + mScrollCenter + " min:" + mMinEdge + " max:" + mMaxEdge;
         }
 
     }

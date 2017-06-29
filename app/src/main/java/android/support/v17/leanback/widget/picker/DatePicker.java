@@ -14,8 +14,11 @@
 
 package android.support.v17.leanback.widget.picker;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.support.annotation.RestrictTo;
 import android.support.v17.leanback.R;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -41,6 +44,7 @@ import java.util.TimeZone;
  * @attr ref R.styleable#lbDatePicker_datePickerFormat
  * @hide
  */
+@RestrictTo(LIBRARY_GROUP)
 public class DatePicker extends Picker {
 
     static final String LOG_TAG = "DatePicker";
@@ -55,7 +59,7 @@ public class DatePicker extends Picker {
 
     final static String DATE_FORMAT = "MM/dd/yyyy";
     final DateFormat mDateFormat = new SimpleDateFormat(DATE_FORMAT);
-    PickerConstant mConstant;
+    PickerUtility.DateConstant mConstant;
 
     Calendar mMinDate;
     Calendar mMaxDate;
@@ -175,23 +179,13 @@ public class DatePicker extends Picker {
         return mDatePickerFormat;
     }
 
-    private Calendar getCalendarForLocale(Calendar oldCalendar, Locale locale) {
-        if (oldCalendar == null) {
-            return Calendar.getInstance(locale);
-        } else {
-            final long currentTimeMillis = oldCalendar.getTimeInMillis();
-            Calendar newCalendar = Calendar.getInstance(locale);
-            newCalendar.setTimeInMillis(currentTimeMillis);
-            return newCalendar;
-        }
-    }
-
     private void updateCurrentLocale() {
-        mConstant = new PickerConstant(Locale.getDefault(), getContext().getResources());
-        mTempDate = getCalendarForLocale(mTempDate, mConstant.locale);
-        mMinDate = getCalendarForLocale(mMinDate, mConstant.locale);
-        mMaxDate = getCalendarForLocale(mMaxDate, mConstant.locale);
-        mCurrentDate = getCalendarForLocale(mCurrentDate, mConstant.locale);
+        mConstant = PickerUtility.getDateConstantInstance(Locale.getDefault(),
+                getContext().getResources());
+        mTempDate = PickerUtility.getCalendarForLocale(mTempDate, mConstant.locale);
+        mMinDate = PickerUtility.getCalendarForLocale(mMinDate, mConstant.locale);
+        mMaxDate = PickerUtility.getCalendarForLocale(mMaxDate, mConstant.locale);
+        mCurrentDate = PickerUtility.getCalendarForLocale(mCurrentDate, mConstant.locale);
 
         if (mMonthColumn != null) {
             mMonthColumn.setStaticLabels(mConstant.months);
@@ -345,85 +339,64 @@ public class DatePicker extends Picker {
         return false;
     }
 
+    private static int[] DATE_FIELDS = {Calendar.DAY_OF_MONTH, Calendar.MONTH, Calendar.YEAR};
+
+    // Following implementation always keeps up-to-date date ranges (min & max values) no matter
+    // what the currently selected date is. This prevents the constant updating of date values while
+    // scrolling vertically and thus fixes the animation jumps that used to happen when we reached
+    // the endpoint date field values since the adapter values do not change while scrolling up
+    // & down across a single field.
+    void updateSpinnersImpl(boolean animation) {
+        // set the spinner ranges respecting the min and max dates
+        int dateFieldIndices[] = {mColDayIndex, mColMonthIndex, mColYearIndex};
+
+        boolean allLargerDateFieldsHaveBeenEqualToMinDate = true;
+        boolean allLargerDateFieldsHaveBeenEqualToMaxDate = true;
+        for(int i = DATE_FIELDS.length - 1; i >= 0; i--) {
+            boolean dateFieldChanged = false;
+            if (dateFieldIndices[i] < 0)
+                continue;
+
+            int currField = DATE_FIELDS[i];
+            PickerColumn currPickerColumn = getColumnAt(dateFieldIndices[i]);
+
+            if (allLargerDateFieldsHaveBeenEqualToMinDate) {
+                dateFieldChanged |= updateMin(currPickerColumn,
+                        mMinDate.get(currField));
+            } else {
+                dateFieldChanged |= updateMin(currPickerColumn,
+                        mCurrentDate.getActualMinimum(currField));
+            }
+
+            if (allLargerDateFieldsHaveBeenEqualToMaxDate) {
+                dateFieldChanged |= updateMax(currPickerColumn,
+                        mMaxDate.get(currField));
+            } else {
+                dateFieldChanged |= updateMax(currPickerColumn,
+                        mCurrentDate.getActualMaximum(currField));
+            }
+
+            allLargerDateFieldsHaveBeenEqualToMinDate &=
+                    (mCurrentDate.get(currField) == mMinDate.get(currField));
+            allLargerDateFieldsHaveBeenEqualToMaxDate &=
+                    (mCurrentDate.get(currField) == mMaxDate.get(currField));
+
+            if (dateFieldChanged) {
+                setColumnAt(dateFieldIndices[i], currPickerColumn);
+            }
+            setColumnValue(dateFieldIndices[i], mCurrentDate.get(currField), animation);
+        }
+    }
+
     private void updateSpinners(final boolean animation) {
         // update range in a post call.  The reason is that RV does not allow notifyDataSetChange()
         // in scroll pass.  UpdateSpinner can be called in a scroll pass, UpdateSpinner() may
         // notifyDataSetChange to update the range.
         post(new Runnable() {
+            @Override
             public void run() {
                 updateSpinnersImpl(animation);
             }
         });
     }
-
-    private void updateSpinnersImpl(boolean animation) {
-        // set the spinner ranges respecting the min and max dates
-        boolean dayRangeChanged = false;
-        boolean monthRangeChanged = false;
-        if (mCurrentDate.equals(mMinDate)) {
-            if (mDayColumn != null) {
-                dayRangeChanged |= updateMin(mDayColumn, mCurrentDate.get(Calendar.DAY_OF_MONTH));
-                dayRangeChanged |=
-                        updateMax(mDayColumn, mCurrentDate.getActualMaximum(Calendar.DAY_OF_MONTH));
-            }
-            if (mMonthColumn != null) {
-                monthRangeChanged |= updateMin(mMonthColumn, mCurrentDate.get(Calendar.MONTH));
-                monthRangeChanged |=
-                        updateMax(mMonthColumn, mCurrentDate.getActualMaximum(Calendar.MONTH));
-            }
-        } else if (mCurrentDate.equals(mMaxDate)) {
-            if (mDayColumn != null) {
-                dayRangeChanged |=
-                        updateMin(mDayColumn, mCurrentDate.getActualMinimum(Calendar.DAY_OF_MONTH));
-                dayRangeChanged |= updateMax(mDayColumn, mCurrentDate.get(Calendar.DAY_OF_MONTH));
-            }
-            if (mMonthColumn != null) {
-                monthRangeChanged |=
-                        updateMin(mMonthColumn, mCurrentDate.getActualMinimum(Calendar.MONTH));
-                monthRangeChanged |= updateMax(mMonthColumn, mCurrentDate.get(Calendar.MONTH));
-            }
-        } else {
-            if (mDayColumn != null) {
-                dayRangeChanged |=
-                        updateMin(mDayColumn, mCurrentDate.getActualMinimum(Calendar.DAY_OF_MONTH));
-                dayRangeChanged |=
-                        updateMax(mDayColumn, mCurrentDate.getActualMaximum(Calendar.DAY_OF_MONTH));
-            }
-            if (mMonthColumn != null) {
-                monthRangeChanged |=
-                        updateMin(mMonthColumn, mCurrentDate.getActualMinimum(Calendar.MONTH));
-                monthRangeChanged |=
-                        updateMax(mMonthColumn, mCurrentDate.getActualMaximum(Calendar.MONTH));
-            }
-        }
-
-        // year spinner range does not change based on the current date
-        boolean yearRangeChanged = false;
-        if (mYearColumn != null) {
-            yearRangeChanged |= updateMin(mYearColumn, mMinDate.get(Calendar.YEAR));
-            yearRangeChanged |= updateMax(mYearColumn, mMaxDate.get(Calendar.YEAR));
-        }
-
-        if (dayRangeChanged) {
-            setColumnAt(mColDayIndex, mDayColumn);
-        }
-        if (monthRangeChanged) {
-            setColumnAt(mColMonthIndex, mMonthColumn);
-        }
-        if (yearRangeChanged) {
-            setColumnAt(mColYearIndex, mYearColumn);
-        }
-        // set the spinner values
-        if (mYearColumn != null) {
-            setColumnValue(mColYearIndex, mCurrentDate.get(Calendar.YEAR), animation);
-        }
-        if (mMonthColumn != null) {
-            setColumnValue(mColMonthIndex, mCurrentDate.get(Calendar.MONTH), animation);
-        }
-        if (mDayColumn != null) {
-            setColumnValue(mColDayIndex, mCurrentDate.get(Calendar.DAY_OF_MONTH), animation);
-        }
-
-    }
-
 }

@@ -13,8 +13,10 @@
  */
 package android.support.v17.leanback.widget;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.util.CircularIntArray;
-import android.util.Log;
+import android.support.v7.widget.RecyclerView;
 
 import java.io.PrintWriter;
 
@@ -108,7 +110,7 @@ abstract class Grid {
 
     protected Provider mProvider;
     protected boolean mReversedFlow;
-    protected int mMargin;
+    protected int mSpacing;
     protected int mNumRows;
     protected int mFirstVisibleIndex = -1;
     protected int mLastVisibleIndex = -1;
@@ -134,10 +136,10 @@ abstract class Grid {
     }
 
     /**
-     * Sets the margin between items in a row
+     * Sets the space between items in a row
      */
-    public final void setMargin(int margin) {
-        mMargin = margin;
+    public final void setSpacing(int spacing) {
+        mSpacing = spacing;
     }
 
     /**
@@ -238,7 +240,7 @@ abstract class Grid {
             mProvider.removeItem(mLastVisibleIndex);
             mLastVisibleIndex--;
         }
-        resetVisbileIndexIfEmpty();
+        resetVisibleIndexIfEmpty();
         if (getFirstVisibleIndex() < 0) {
             setStart(index);
         }
@@ -260,7 +262,7 @@ abstract class Grid {
      * Finds the largest or smallest row min edge of visible items,
      * the row index is returned in indices[0], the item index is returned in indices[1].
      */
-    public final int findRowMin(boolean findLarge, int[] indices) {
+    public final int findRowMin(boolean findLarge, @Nullable int[] indices) {
         return findRowMin(findLarge, mReversedFlow ? mLastVisibleIndex : mFirstVisibleIndex,
                 indices);
     }
@@ -275,7 +277,7 @@ abstract class Grid {
      * Finds the largest or smallest row max edge of visible items, the row index is returned in
      * indices[0], the item index is returned in indices[1].
      */
-    public final int findRowMax(boolean findLarge, int[] indices) {
+    public final int findRowMax(boolean findLarge, @Nullable int[] indices) {
         return findRowMax(findLarge, mReversedFlow ? mFirstVisibleIndex : mLastVisibleIndex,
                 indices);
     }
@@ -293,8 +295,8 @@ abstract class Grid {
         if (mLastVisibleIndex < 0) {
             return false;
         }
-        return mReversedFlow ? findRowMin(true, null) <= toLimit + mMargin :
-                    findRowMax(false, null) >= toLimit - mMargin;
+        return mReversedFlow ? findRowMin(true, null) <= toLimit + mSpacing :
+                    findRowMax(false, null) >= toLimit - mSpacing;
     }
 
     /**
@@ -304,8 +306,8 @@ abstract class Grid {
         if (mLastVisibleIndex < 0) {
             return false;
         }
-        return mReversedFlow ? findRowMax(false, null) >= toLimit + mMargin :
-                    findRowMin(true, null) <= toLimit - mMargin;
+        return mReversedFlow ? findRowMax(false, null) >= toLimit - mSpacing :
+                    findRowMin(true, null) <= toLimit + mSpacing;
     }
 
     /**
@@ -395,7 +397,7 @@ abstract class Grid {
                 break;
             }
         }
-        resetVisbileIndexIfEmpty();
+        resetVisibleIndexIfEmpty();
     }
 
     /**
@@ -414,13 +416,20 @@ abstract class Grid {
                 break;
             }
         }
-        resetVisbileIndexIfEmpty();
+        resetVisibleIndexIfEmpty();
     }
 
-    private void resetVisbileIndexIfEmpty() {
+    private void resetVisibleIndexIfEmpty() {
         if (mLastVisibleIndex < mFirstVisibleIndex) {
             resetVisibleIndex();
         }
+    }
+
+    /**
+     * Queries items adjacent to the viewport (in the direction of da) into the prefetch registry.
+     */
+    public void collectAdjacentPrefetchPositions(int fromLimit, int da,
+            @NonNull RecyclerView.LayoutManager.LayoutPrefetchRegistry layoutPrefetchRegistry) {
     }
 
     public abstract void debugPrint(PrintWriter pw);

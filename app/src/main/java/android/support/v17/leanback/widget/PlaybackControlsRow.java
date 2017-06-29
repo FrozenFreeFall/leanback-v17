@@ -14,6 +14,7 @@
 package android.support.v17.leanback.widget;
 
 import android.support.v17.leanback.R;
+import android.support.v17.leanback.util.MathUtil;
 import android.util.TypedValue;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -215,7 +216,7 @@ public class PlaybackControlsRow extends Row {
             if (numSpeeds < 1) {
                 throw new IllegalArgumentException("numSpeeds must be > 0");
             }
-            Drawable[] drawables = new Drawable[numSpeeds];
+            Drawable[] drawables = new Drawable[numSpeeds + 1];
             drawables[0] = getStyledDrawable(context,
                     R.styleable.lbPlaybackControlsActionIcons_fast_forward);
             setDrawables(drawables);
@@ -226,7 +227,7 @@ public class PlaybackControlsRow extends Row {
             String[] labels2 = new String[getActionCount()];
             labels2[0] = labels[0];
 
-            for (int i = 1; i < numSpeeds; i++) {
+            for (int i = 1; i <= numSpeeds; i++) {
                 int multiplier = i + 1;
                 labels[i] = context.getResources().getString(
                         R.string.lb_control_display_fast_forward_multiplier, multiplier);
@@ -262,7 +263,7 @@ public class PlaybackControlsRow extends Row {
             if (numSpeeds < 1) {
                 throw new IllegalArgumentException("numSpeeds must be > 0");
             }
-            Drawable[] drawables = new Drawable[numSpeeds];
+            Drawable[] drawables = new Drawable[numSpeeds + 1];
             drawables[0] = getStyledDrawable(context,
                     R.styleable.lbPlaybackControlsActionIcons_rewind);
             setDrawables(drawables);
@@ -273,7 +274,7 @@ public class PlaybackControlsRow extends Row {
             String[] labels2 = new String[getActionCount()];
             labels2[0] = labels[0];
 
-            for (int i = 1; i < numSpeeds; i++) {
+            for (int i = 1; i <= numSpeeds; i++) {
                 int multiplier = i + 1;
                 labels[i] = labels[i] = context.getResources().getString(
                         R.string.lb_control_display_rewind_multiplier, multiplier);
@@ -317,6 +318,23 @@ public class PlaybackControlsRow extends Row {
                     R.styleable.lbPlaybackControlsActionIcons_skip_previous));
             setLabel1(context.getString(R.string.lb_playback_controls_skip_previous));
             addKeyCode(KeyEvent.KEYCODE_MEDIA_PREVIOUS);
+        }
+    }
+
+    /**
+     * An action displaying an icon for picture-in-picture.
+     */
+    public static class PictureInPictureAction extends Action {
+        /**
+         * Constructor
+         * @param context Context used for loading resources.
+         */
+        public PictureInPictureAction(Context context) {
+            super(R.id.lb_control_picture_in_picture);
+            setIcon(getStyledDrawable(context,
+                    R.styleable.lbPlaybackControlsActionIcons_picture_in_picture));
+            setLabel1(context.getString(R.string.lb_playback_controls_picture_in_picture));
+            addKeyCode(KeyEvent.KEYCODE_WINDOW);
         }
     }
 
@@ -570,7 +588,7 @@ public class PlaybackControlsRow extends Row {
         }
     }
 
-    private static Bitmap createBitmap(Bitmap bitmap, int color) {
+    static Bitmap createBitmap(Bitmap bitmap, int color) {
         Bitmap dst = bitmap.copy(bitmap.getConfig(), true);
         Canvas canvas = new Canvas(dst);
         Paint paint = new Paint();
@@ -579,7 +597,7 @@ public class PlaybackControlsRow extends Row {
         return dst;
     }
 
-    private static int getIconHighlightColor(Context context) {
+    static int getIconHighlightColor(Context context) {
         TypedValue outValue = new TypedValue();
         if (context.getTheme().resolveAttribute(R.attr.playbackControlsIconHighlightColor,
                 outValue, true)) {
@@ -588,7 +606,7 @@ public class PlaybackControlsRow extends Row {
         return context.getResources().getColor(R.color.lb_playback_icon_highlight_no_theme);
     }
 
-    private static Drawable getStyledDrawable(Context context, int index) {
+    static Drawable getStyledDrawable(Context context, int index) {
         TypedValue outValue = new TypedValue();
         if (!context.getTheme().resolveAttribute(
                 R.attr.playbackControlsActionIcons, outValue, false)) {
@@ -605,9 +623,9 @@ public class PlaybackControlsRow extends Row {
     private Drawable mImageDrawable;
     private ObjectAdapter mPrimaryActionsAdapter;
     private ObjectAdapter mSecondaryActionsAdapter;
-    private int mTotalTimeMs;
-    private int mCurrentTimeMs;
-    private int mBufferedProgressMs;
+    private long mTotalTimeMs;
+    private long mCurrentTimeMs;
+    private long mBufferedProgressMs;
     private OnPlaybackStateChangedListener mListener;
 
     /**
@@ -704,13 +722,29 @@ public class PlaybackControlsRow extends Row {
      * this row has changed.</p>
      */
     public void setTotalTime(int ms) {
+        setTotalTimeLong((long) ms);
+    }
+
+    /**
+     * Sets the total time in milliseconds (long type) for the playback controls row.
+     * @param ms Total time in milliseconds of long type.
+     */
+    public void setTotalTimeLong(long ms) {
         mTotalTimeMs = ms;
     }
 
     /**
      * Returns the total time in milliseconds for the playback controls row.
+     * @throws ArithmeticException If total time in milliseconds overflows int.
      */
     public int getTotalTime() {
+        return MathUtil.safeLongToInt(getTotalTimeLong());
+    }
+
+    /**
+     * Returns the total time in milliseconds of long type for the playback controls row.
+     */
+    public long getTotalTimeLong() {
         return mTotalTimeMs;
     }
 
@@ -720,6 +754,14 @@ public class PlaybackControlsRow extends Row {
      * be updated to reflect the new value.
      */
     public void setCurrentTime(int ms) {
+        setCurrentTimeLong((long) ms);
+    }
+
+    /**
+     * Sets the current time in milliseconds for playback controls row in long type.
+     * @param ms Current time in milliseconds of long type.
+     */
+    public void setCurrentTimeLong(long ms) {
         if (mCurrentTimeMs != ms) {
             mCurrentTimeMs = ms;
             currentTimeChanged();
@@ -728,8 +770,16 @@ public class PlaybackControlsRow extends Row {
 
     /**
      * Returns the current time in milliseconds for the playback controls row.
+     * @throws ArithmeticException If current time in milliseconds overflows int.
      */
     public int getCurrentTime() {
+        return MathUtil.safeLongToInt(getCurrentTimeLong());
+    }
+
+    /**
+     * Returns the current time in milliseconds of long type for playback controls row.
+     */
+    public long getCurrentTimeLong() {
         return mCurrentTimeMs;
     }
 
@@ -739,6 +789,14 @@ public class PlaybackControlsRow extends Row {
      * be updated to reflect the new value.
      */
     public void setBufferedProgress(int ms) {
+        setBufferedProgressLong((long) ms);
+    }
+
+    /**
+     * Sets the buffered progress for the playback controls row.
+     * @param ms Buffered progress in milliseconds of long type.
+     */
+    public void setBufferedProgressLong(long ms) {
         if (mBufferedProgressMs != ms) {
             mBufferedProgressMs = ms;
             bufferedProgressChanged();
@@ -747,8 +805,16 @@ public class PlaybackControlsRow extends Row {
 
     /**
      * Returns the buffered progress for the playback controls row.
+     * @throws ArithmeticException If buffered progress in milliseconds overflows int.
      */
     public int getBufferedProgress() {
+        return MathUtil.safeLongToInt(getBufferedProgressLong());
+    }
+
+    /**
+     * Returns the buffered progress of long type for the playback controls row.
+     */
+    public long getBufferedProgressLong() {
         return mBufferedProgressMs;
     }
 
@@ -781,8 +847,8 @@ public class PlaybackControlsRow extends Row {
     }
 
     interface OnPlaybackStateChangedListener {
-        public void onCurrentTimeChanged(int currentTimeMs);
-        public void onBufferedProgressChanged(int bufferedProgressMs);
+        public void onCurrentTimeChanged(long currentTimeMs);
+        public void onBufferedProgressChanged(long bufferedProgressMs);
     }
 
     /**

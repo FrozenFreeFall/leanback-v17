@@ -13,8 +13,11 @@
  */
 package android.support.v17.leanback.transition;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.content.Context;
 import android.os.Build;
+import android.support.annotation.RestrictTo;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,6 +29,7 @@ import java.util.ArrayList;
  * Helper for view transitions.
  * @hide
  */
+@RestrictTo(LIBRARY_GROUP)
 public final class TransitionHelper {
 
     public static final int FADE_IN = 0x1;
@@ -44,11 +48,8 @@ public final class TransitionHelper {
      * @return True if Transition animations are supported.
      */
     public static boolean systemSupportsTransitions() {
-        if (Build.VERSION.SDK_INT >= 19) {
-            // Supported on Android 4.4 or later.
-            return true;
-        }
-        return false;
+        // Supported on Android 4.4 or later.
+        return Build.VERSION.SDK_INT >= 19;
     }
 
     /**
@@ -153,6 +154,9 @@ public final class TransitionHelper {
         public void beginDelayedTransition(ViewGroup sceneRoot, Object transitionObject);
 
         public void setTransitionGroup(ViewGroup viewGroup, boolean transitionGroup);
+
+        public void setEpicenterCallback(Object transitionObject,
+                TransitionEpicenterCallback callback);
     }
 
     /**
@@ -162,18 +166,25 @@ public final class TransitionHelper {
 
         private static class TransitionStub {
             ArrayList<TransitionListener> mTransitionListeners;
+
+            TransitionStub() {
+            }
         }
 
+        @Override
         public void setEnterTransition(android.app.Fragment fragment, Object transition) {
         }
 
+        @Override
         public void setExitTransition(android.app.Fragment fragment, Object transition) {
         }
 
+        @Override
         public void setSharedElementEnterTransition(android.app.Fragment fragment,
                 Object transition) {
         }
 
+        @Override
         public void addSharedElement(android.app.FragmentTransaction ft,
                 View view, String transitionName) {
         }
@@ -382,6 +393,11 @@ public final class TransitionHelper {
         @Override
         public void setTransitionGroup(ViewGroup viewGroup, boolean transitionGroup) {
         }
+
+        @Override
+        public void setEpicenterCallback(Object transitionObject,
+                TransitionEpicenterCallback callback) {
+        }
     }
 
     /**
@@ -528,19 +544,23 @@ public final class TransitionHelper {
 
     static final class TransitionHelperApi21Impl extends TransitionHelperKitkatImpl {
 
+        @Override
         public void setEnterTransition(android.app.Fragment fragment, Object transition) {
             TransitionHelperApi21.setEnterTransition(fragment, transition);
         }
 
+        @Override
         public void setExitTransition(android.app.Fragment fragment, Object transition) {
             TransitionHelperApi21.setExitTransition(fragment, transition);
         }
 
+        @Override
         public void setSharedElementEnterTransition(android.app.Fragment fragment,
                 Object transition) {
             TransitionHelperApi21.setSharedElementEnterTransition(fragment, transition);
         }
 
+        @Override
         public void addSharedElement(android.app.FragmentTransaction ft,
                 View view, String transitionName) {
             TransitionHelperApi21.addSharedElement(ft, view, transitionName);
@@ -621,6 +641,11 @@ public final class TransitionHelper {
             return TransitionHelperApi21.createChangeTransform();
         }
 
+        @Override
+        public void setEpicenterCallback(Object transitionObject,
+                TransitionEpicenterCallback callback) {
+            TransitionHelperApi21.setEpicenterCallback(transitionObject, callback);
+        }
     }
 
     static {
@@ -830,6 +855,11 @@ public final class TransitionHelper {
 
     public static void setTransitionGroup(ViewGroup viewGroup, boolean transitionGroup) {
         sImpl.setTransitionGroup(viewGroup, transitionGroup);
+    }
+
+    public static void setEpicenterCallback(Object transition,
+            TransitionEpicenterCallback callback) {
+        sImpl.setEpicenterCallback(transition, callback);
     }
 
     /**

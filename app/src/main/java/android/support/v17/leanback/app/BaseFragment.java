@@ -13,10 +13,13 @@
  */
 package android.support.v17.leanback.app;
 
+import static android.support.v17.leanback.util.StateMachine.STATUS_EXECUTED;
+
 import android.os.Bundle;
-import android.support.v17.leanback.R;
 import android.support.v17.leanback.transition.TransitionHelper;
 import android.support.v17.leanback.transition.TransitionListener;
+import android.support.v17.leanback.util.StateMachine;
+import android.support.v17.leanback.util.StateMachine.State;
 import android.view.View;
 import android.view.ViewTreeObserver;
 
@@ -25,22 +28,75 @@ import android.view.ViewTreeObserver;
  */
 class BaseFragment extends BrandedFragment {
 
-    private boolean mEntranceTransitionEnabled = false;
-    private boolean mStartEntranceTransitionPending = false;
-    private boolean mEntranceTransitionPreparePending = false;
-    private Object mEntranceTransition;
+    /**
+     * Condition: {@link TransitionHelper#systemSupportsEntranceTransitions()} is true
+     * Action: none
+     */
+    private final State STATE_ALLOWED = new State() {
+        @Override
+        public boolean canRun() {
+            return TransitionHelper.systemSupportsEntranceTransitions();
+        }
+
+        @Override
+        public void run() {
+            mProgressBarManager.show();
+        }
+    };
+
+    /**
+     * Condition: {@link #isReadyForPrepareEntranceTransition()} is true
+     * Action: {@link #onEntranceTransitionPrepare()} }
+     */
+    private final State STATE_PREPARE = new State() {
+        @Override
+        public boolean canRun() {
+            return isReadyForPrepareEntranceTransition();
+        }
+
+        @Override
+        public void run() {
+            onEntranceTransitionPrepare();
+        }
+    };
+
+    /**
+     * Condition: {@link #isReadyForStartEntranceTransition()} is true
+     * Action: {@link #onExecuteEntranceTransition()} }
+     */
+    private final State STATE_START = new State() {
+        @Override
+        public boolean canRun() {
+            return isReadyForStartEntranceTransition();
+        }
+
+        @Override
+        public void run() {
+            mProgressBarManager.hide();
+            onExecuteEntranceTransition();
+        }
+    };
+
+    final StateMachine mEnterTransitionStates;
+
+    Object mEntranceTransition;
+    final ProgressBarManager mProgressBarManager = new ProgressBarManager();
+
+    BaseFragment() {
+        mEnterTransitionStates = new StateMachine();
+        mEnterTransitionStates.addState(STATE_ALLOWED);
+        mEnterTransitionStates.addState(STATE_PREPARE);
+        mEnterTransitionStates.addState(STATE_START);
+    }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        if (mEntranceTransitionPreparePending) {
-            mEntranceTransitionPreparePending = false;
-            onEntranceTransitionPrepare();
-        }
-        if (mStartEntranceTransitionPending) {
-            mStartEntranceTransitionPending = false;
-            startEntranceTransition();
-        }
+        performPendingStates();
+    }
+
+    final void performPendingStates() {
+        mEnterTransitionStates.runPendingStates();
     }
 
     /**
@@ -70,14 +126,8 @@ class BaseFragment extends BrandedFragment {
      * override the default transition that browse and details provides.
      */
     public void prepareEntranceTransition() {
-        if (TransitionHelper.systemSupportsEntranceTransitions()) {
-            mEntranceTransitionEnabled = true;
-            if (getView() == null) {
-                mEntranceTransitionPreparePending = true;
-                return;
-            }
-            onEntranceTransitionPrepare();
-        }
+        mEnterTransitionStates.runState(STATE_ALLOWED);
+        mEnterTransitionStates.runState(STATE_PREPARE);
     }
 
     /**
@@ -86,7 +136,8 @@ class BaseFragment extends BrandedFragment {
      * is reset to false after entrance transition is started.
      */
     boolean isEntranceTransitionEnabled() {
-        return mEntranceTransitionEnabled;
+        // Enabled when passed STATE_ALLOWED in prepareEntranceTransition call.
+        return STATE_ALLOWED.getStatus() == STATUS_EXECUTED;
     }
 
     /**
@@ -127,6 +178,26 @@ class BaseFragment extends BrandedFragment {
     }
 
     /**
+     * Returns true if it is ready to perform {@link #prepareEntranceTransition()}, false otherwise.
+     * Subclass may override and add additional conditions.
+     * @return True if it is ready to perform {@link #prepareEntranceTransition()}, false otherwise.
+     * Subclass may override and add additional conditions.
+     */
+    boolean isReadyForPrepareEntranceTransition() {
+        return getView() != null;
+    }
+
+    /**
+     * Returns true if it is ready to perform {@link #startEntranceTransition()}, false otherwise.
+     * Subclass may override and add additional conditions.
+     * @return True if it is ready to perform {@link #startEntranceTransition()}, false otherwise.
+     * Subclass may override and add additional conditions.
+     */
+    boolean isReadyForStartEntranceTransition() {
+        return getView() != null;
+    }
+
+    /**
      * When fragment finishes loading data, it should call startEntranceTransition()
      * to execute the entrance transition.
      * startEntranceTransition() will start transition only if both two conditions
@@ -138,27 +209,21 @@ class BaseFragment extends BrandedFragment {
      * and executed when view is created.
      */
     public void startEntranceTransition() {
-        if (!mEntranceTransitionEnabled || mEntranceTransition != null) {
-            return;
-        }
-        // if view is not created yet, delay until onViewCreated()
-        if (getView() == null) {
-            mStartEntranceTransitionPending = true;
-            return;
-        }
-        if (mEntranceTransitionPreparePending) {
-            mEntranceTransitionPreparePending = false;
-            onEntranceTransitionPrepare();
-        }
+        mEnterTransitionStates.runState(STATE_START);
+    }
+
+    void onExecuteEntranceTransition() {
         // wait till views get their initial position before start transition
         final View view = getView();
-        view.getViewTreeObserver().addOnPreDrawListener(
-                new ViewTreeObserver.OnPreDrawListener() {
+        view.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
             @Override
             public boolean onPreDraw() {
                 view.getViewTreeObserver().removeOnPreDrawListener(this);
+                if (FragmentUtil.getContext(BaseFragment.this) == null || getView() == null) {
+                    // bail out if fragment is destroyed immediately after startEntranceTransition
+                    return true;
+                }
                 internalCreateEntranceTransition();
-                mEntranceTransitionEnabled = false;
                 if (mEntranceTransition != null) {
                     onEntranceTransitionStart();
                     runEntranceTransition(mEntranceTransition);
@@ -179,7 +244,15 @@ class BaseFragment extends BrandedFragment {
             public void onTransitionEnd(Object transition) {
                 mEntranceTransition = null;
                 onEntranceTransitionEnd();
+                mEnterTransitionStates.resetStatus();
             }
         });
+    }
+
+    /**
+     * Returns the {@link ProgressBarManager}.
+     */
+    public final ProgressBarManager getProgressBarManager() {
+        return mProgressBarManager;
     }
 }
